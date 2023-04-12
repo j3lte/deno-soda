@@ -3,7 +3,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/j3lte/deno-soda?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)
 ![GitHub last commit](https://img.shields.io/github/last-commit/j3lte/deno-soda?style=for-the-badge)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/j3lte/deno-soda/Deno%20CI?style=for-the-badge)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/j3lte/deno-soda/main.yml?branch=main&style=for-the-badge)
 
 SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 
