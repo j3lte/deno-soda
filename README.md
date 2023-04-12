@@ -12,6 +12,7 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 - Create SODA queries
 - Use SODA queries to fetch from Socrata Open Data API
 - Build complex queries with ease, in a functional way
+- SQL Builder, inspired by [sql-builder](https://deno.land/x/sql_builder)
 
 ## Installation
 
