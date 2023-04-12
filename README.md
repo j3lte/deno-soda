@@ -1,4 +1,5 @@
-# SODA Query
+SODA Query
+===
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/j3lte/deno-soda?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)
@@ -7,6 +8,20 @@
 
 SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 
+## Table of Contents
+- [SODA Query](#soda-query)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Example](#example)
+    - [Plain query](#plain-query)
+    - [SQL Builder](#sql-builder)
+    - [SodaQuery](#sodaquery)
+  - [Querying data](#querying-data)
+    - [Select](#select)
+    - [Where](#where)
+  - [Development](#development)
+  - [License](#license)
 ## Features
 
 - Create SODA queries
@@ -82,7 +97,7 @@ const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 const query = createQueryWithDataset("data.organization.com", "dataset-id");
 ```
 
-### Querying data
+## Querying data
 
 > **Note:** Most methods return the instance of SodaQuery. This means that you can chain methods together.
 
@@ -114,6 +129,41 @@ Select("column_name").count().as("counted");
 Select("column_name").avg();
 Select("column_name").sum();
 ```
+
+See all methods in [`<SelectObject>`](https://deno.land/x/soda/mod.ts?s=SelectObject) interface.
+
+### Where
+
+A `Where` object can be used to filter the data returned by the query. It uses static methods to create the `Where` object.
+
+```ts
+import { Where, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+
+const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
+
+// Filtering data
+query.where(
+  //...Where objects
+);
+
+// Eq
+Where.eq("column_name", "value");
+
+// null
+Where.isNull("column_name");
+Where.isNotNull("column_name");
+
+// Combined
+Where.and(
+  Where.eq("column_name", "value"),
+  Where.or(
+    Where.eq("column_name", "value"),
+    Where.eq("column_name", "value"),
+  ),
+);
+```
+
+See all methods in [`<Where>`](https://deno.land/x/soda/mod.ts?s=Where) interface.
 
 ## Development
 
