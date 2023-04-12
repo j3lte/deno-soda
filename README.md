@@ -86,7 +86,34 @@ const query = createQueryWithDataset("data.organization.com", "dataset-id");
 
 > **Note:** Most methods return the instance of SodaQuery. This means that you can chain methods together.
 
-> _---> Documentation coming soon <---_
+### Select
+
+A `Select` object can be used to transform the data returned by the query.
+
+```ts
+import { Select, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+
+const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
+
+// Selecting columns
+query.select(
+  //...Select objects
+);
+
+// Just a column:
+Select("column_name");
+
+// Select all:
+Select(); // or Select("*")
+
+// Select with alias:
+Select("column_name").as("alias");
+
+// Select with function:
+Select("column_name").count().as("counted");
+Select("column_name").avg();
+Select("column_name").sum();
+```
 
 ## Development
 

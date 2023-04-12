@@ -1,6 +1,6 @@
 export { createQueryWithDataset, SodaQuery } from "./Query.ts";
 export { Where } from "./Where.ts";
-export { Select } from "./Select.ts";
+export { Select, SelectObject } from "./Select.ts";
 export {
   SelectAll,
   SelectGreatest,
