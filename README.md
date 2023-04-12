@@ -1,9 +1,12 @@
 # SODA Query
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/j3lte/deno-soda?style=for-the-badge)
-![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)
-![GitHub last commit](https://img.shields.io/github/last-commit/j3lte/deno-soda?style=for-the-badge)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/j3lte/deno-soda/main.yml?branch=main&style=for-the-badge)
+[![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/blob/main/LICENSE "GitHub License")
+[![GitHub last commit](https://img.shields.io/github/last-commit/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/commits/main "GitHub last commit")
+[![GitHub issues](https://img.shields.io/github/issues/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/issues "Github Issues")
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/j3lte/deno-soda/main.yml?branch=main&style=for-the-badge)](https://github.com/j3lte/deno-soda/actions/workflows/main.yml "GitHub Workflow Status")
+[![Codecov](https://img.shields.io/codecov/c/github/j3lte/deno-soda?style=for-the-badge&token=F9CAI1FCMX)](https://codecov.io/gh/j3lte/deno-soda "Codecov")
+[![Deno docs](https://img.shields.io/badge/Deno-Docs-blue?style=for-the-badge)](https://doc.deno.land/https/deno.land/x/soda/mod.ts "Deno docs")
 
 SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 
