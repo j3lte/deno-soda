@@ -33,7 +33,7 @@ function SelectMultipleFunc(
  *
  * __This function works with 2.1 endpoint(s)__
  *
- * @url: https://dev.socrata.com/docs/functions/greatest.html
+ * Docs: https://dev.socrata.com/docs/functions/greatest.html
  */
 export function SelectGreatest(
   ...fields: Array<
@@ -53,7 +53,7 @@ export function SelectGreatest(
  *
  * __This function works with 2.1 endpoint(s)__
  *
- * @url: https://dev.socrata.com/docs/functions/least.html
+ * Docs: https://dev.socrata.com/docs/functions/least.html
  */
 export function SelectLeast(
   ...fields: Array<
@@ -73,7 +73,7 @@ export function SelectLeast(
  *
  * __This function works with 2.1 endpoint(s)__
  *
- * @url: https://dev.socrata.com/docs/functions/regr_intercept.html
+ * Docs: https://dev.socrata.com/docs/functions/regr_intercept.html
  */
 export function SelectRegrIntercept(
   xField: string | Field<DataType.Number>,
@@ -93,7 +93,7 @@ export function SelectRegrIntercept(
  *
  * __This function works with 2.1 endpoint(s)__
  *
- * @url: https://dev.socrata.com/docs/functions/regr_r2.html
+ * Docs: https://dev.socrata.com/docs/functions/regr_r2.html
  */
 export function SelectRegrR2(
   xField: string | Field<DataType.Number>,
@@ -113,7 +113,7 @@ export function SelectRegrR2(
  *
  * __This function works with 2.1 endpoint(s)__
  *
- * @url: https://dev.socrata.com/docs/functions/regr_slope.html
+ * Docs: https://dev.socrata.com/docs/functions/regr_slope.html
  */
 export function SelectRegrSlope(
   xField: string | Field<DataType.Number>,

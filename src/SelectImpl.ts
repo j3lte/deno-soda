@@ -115,7 +115,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Number
-   * @url: https://dev.socrata.com/docs/functions/avg.html
+   * Docs: https://dev.socrata.com/docs/functions/avg.html
    */
   avg(): SelectImpl<DataType.Number> {
     if (!testFieldImpl(this.fieldObj, DataType.Number)) {
@@ -128,7 +128,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Number
-   * @url: https://dev.socrata.com/docs/functions/sum.html
+   * Docs: https://dev.socrata.com/docs/functions/sum.html
    */
   sum(): SelectImpl<DataType.Number> {
     if (!testFieldImpl(this.fieldObj, DataType.Number)) {
@@ -141,7 +141,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works like SELECT COUNT(*)
-   * @url: https://dev.socrata.com/docs/functions/count.html
+   * Docs: https://dev.socrata.com/docs/functions/count.html
    */
   count(): SelectImpl<T> {
     this.extraField = null;
@@ -151,7 +151,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Returns distinct set of records
-   * @url: https://dev.socrata.com/docs/functions/distinct.html
+   * Docs: https://dev.socrata.com/docs/functions/distinct.html
    */
   distinct(): SelectImpl<T> {
     this.extraField = null;
@@ -166,7 +166,7 @@ export class SelectImpl<T = DataType> {
    *
    * _This function works with 2.1 endpoint(s)_
    *
-   * @url: https://dev.socrata.com/docs/functions/max.html
+   * Docs: https://dev.socrata.com/docs/functions/max.html
    */
   max(): SelectImpl<
     | DataType.Number
@@ -199,7 +199,7 @@ export class SelectImpl<T = DataType> {
    *
    * _This function works with 2.1 endpoint(s)_
    *
-   * @url: https://dev.socrata.com/docs/functions/min.html
+   * Docs: https://dev.socrata.com/docs/functions/min.html
    */
   min(): SelectImpl<
     | DataType.Number
@@ -230,7 +230,7 @@ export class SelectImpl<T = DataType> {
    *
    * Returns the minimum convex geometry that encloses all of another geometry's points.
    *
-   * @url: https://dev.socrata.com/docs/functions/convex_hull.html
+   * Docs: https://dev.socrata.com/docs/functions/convex_hull.html
    */
   convexHull(): SelectImpl<
     | DataType.Point
@@ -279,7 +279,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_d.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_d.html
    */
   dateExtractDayOfDate(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -295,7 +295,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_dow.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_dow.html
    */
   dateExtractDayOfWeek(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -311,7 +311,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_hh.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_hh.html
    */
   dateExtractHourOfDay(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -327,7 +327,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_m.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_m.html
    */
   dateExtractMonth(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -343,7 +343,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_mm.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_mm.html
    */
   dateExtractMinute(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -359,7 +359,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_ss.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_ss.html
    */
   dateExtractSeconds(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -375,7 +375,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_woy.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_woy.html
    */
   dateExtractWeekOfYear(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -391,7 +391,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_extract_y.html
+   * Docs: https://dev.socrata.com/docs/functions/date_extract_y.html
    */
   dateExtractYear(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -407,7 +407,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.0 and 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_trunc_y.html
+   * Docs: https://dev.socrata.com/docs/functions/date_trunc_y.html
    */
   dateTruncYear(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract("DATE_TRUNC_Y", SelectFunction.DateTruncYear);
@@ -420,7 +420,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.0 and 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_trunc_ym.html
+   * Docs: https://dev.socrata.com/docs/functions/date_trunc_ym.html
    */
   dateTruncYearMonth(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract("DATE_TRUNC_YM", SelectFunction.DateTruncYearMonth);
@@ -433,7 +433,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.0 and 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/date_trunc_ymd.html
+   * Docs: https://dev.socrata.com/docs/functions/date_trunc_ymd.html
    */
   dateTruncYearMonthDay(): SelectImpl<DataType.FloatingTimestamp> {
     return this.dateExtract(
@@ -444,7 +444,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Point
-   * @url: https://dev.socrata.com/docs/functions/distance_in_meters.html
+   * Docs: https://dev.socrata.com/docs/functions/distance_in_meters.html
    */
   distanceInMeters(lat: number, lon: number): SelectImpl<DataType.Point> {
     if (!testFieldImpl(this.fieldObj, DataType.Point)) {
@@ -532,7 +532,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/num_points.html
+   * Docs: https://dev.socrata.com/docs/functions/num_points.html
    */
   numberOfVertices(): SelectImpl<
     | DataType.Polygon
@@ -565,7 +565,7 @@ export class SelectImpl<T = DataType> {
    *
    * @param tolerance The tolerance to use when simplifying the geometry, in meters
    *
-   * @url: https://dev.socrata.com/docs/functions/simplify.html
+   * Docs: https://dev.socrata.com/docs/functions/simplify.html
    */
   simplify(tolerance: number): SelectImpl<
     | DataType.Line
@@ -596,7 +596,7 @@ export class SelectImpl<T = DataType> {
    *
    * @param tolerance  The tolerance to use when simplifying the geometry, in meters
    *
-   * @url: https://dev.socrata.com/docs/functions/simplify_preserve_topology.html
+   * Docs: https://dev.socrata.com/docs/functions/simplify_preserve_topology.html
    */
   simplifyPreserveTopology(tolerance: number): SelectImpl<
     | DataType.Line
@@ -629,7 +629,7 @@ export class SelectImpl<T = DataType> {
    *
    * __This function works with 2.1 endpoint(s)__
    *
-   * @url: https://dev.socrata.com/docs/functions/extent.html
+   * Docs: https://dev.socrata.com/docs/functions/extent.html
    */
   extent(): SelectImpl<
     | DataType.Point
