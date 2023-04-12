@@ -8,7 +8,8 @@ import {
   SelectRegrR2,
   SelectRegrSlope,
 } from "../src/Select.ts";
-import { DataType, Field } from "../src/Field.ts";
+import { DataType } from "../src/types.ts";
+import type { Field } from "../src/types.ts";
 
 const createField = <T>(type: T, name = "test"): Field<T> =>
   ({

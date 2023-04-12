@@ -1,8 +1,11 @@
 // TODO(@j3lte) - Fix the 'any' types in this file
 // deno-lint-ignore-file no-explicit-any
 
+import type { Field, FieldImpl } from "./types.ts";
+
 import { replaceParams, SupportTypeElement } from "./utils/param.ts";
-import { DataType, Field, FieldImpl, getFieldName } from "./Field.ts";
+import { getFieldName } from "./Field.ts";
+import { DataType } from "./types.ts";
 
 type BasicType = Exclude<SupportTypeElement, null | undefined | boolean>;
 

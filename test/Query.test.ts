@@ -1,8 +1,9 @@
 import { assertEquals, assertNotEquals, assertThrows } from "../dev_deps.ts";
 import { mockFetch, unMockFetch } from "./util.ts";
-import { AuthOpts, createQueryWithDataset, SodaQuery } from "../src/Query.ts";
+import { createQueryWithDataset, SodaQuery } from "../src/Query.ts";
 import { Order } from "../src/Order.ts";
 import { Where } from "../src/Where.ts";
+import type { AuthOpts } from "../src/types.ts";
 
 const createSampleQuery = <T>(authOpts?: AuthOpts) =>
   createQueryWithDataset<T>("test.example.com", "test", authOpts);

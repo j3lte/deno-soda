@@ -1,5 +1,8 @@
+import type { Field } from "../src/types.ts";
+
 import { assertEquals } from "../dev_deps.ts";
-import { DataType, Field, getFieldName, testFieldImpl } from "../src/Field.ts";
+import { getFieldName, testFieldImpl } from "../src/Field.ts";
+import { DataType } from "../src/types.ts";
 
 Deno.test("(Field.)testFieldImpl", () => {
   const field: Field<DataType.Checkbox> = {

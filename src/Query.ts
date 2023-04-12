@@ -1,5 +1,12 @@
-import type { AuthOpts, ExtraDataFields, Options, RequesOpts } from "./interfaces.ts";
-import type { DataResponse, FieldImpl, QueryObj } from "./types.ts";
+import type {
+  AuthOpts,
+  DataResponse,
+  ExtraDataFields,
+  FieldImpl,
+  Options,
+  QueryObj,
+  RequesOpts,
+} from "./types.ts";
 
 import { Where } from "./Where.ts";
 import { toQS } from "./utils/qs.ts";

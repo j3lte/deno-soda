@@ -1,4 +1,4 @@
-import { DataType } from "./enums.ts";
+import { DataType } from "./types.ts";
 import type { Field, FieldImpl } from "./types.ts";
 
 export const testFieldImpl = (field: FieldImpl | null, ...types: DataType[]): boolean =>

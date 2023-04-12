@@ -1,6 +1,5 @@
-export type { DataResponse, Field, FieldImpl, QueryObj } from "./types.ts";
-export type { AuthOpts, Options } from "./interfaces.ts";
-export { DataType } from "./enums.ts";
+export type { AuthOpts, DataResponse, Field, FieldImpl, Options, QueryObj } from "./types.ts";
+export { DataType } from "./types.ts";
 
 export { createQueryWithDataset, SodaQuery } from "./Query.ts";
 
