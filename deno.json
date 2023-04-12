@@ -35,5 +35,14 @@
         "./.coverage/**/*"
       ]
     }
+  },
+  "test": {
+    "files": {
+      "exclude": [
+        "./_local_testing.ts",
+        "./.coverage/**/*",
+        "./test/**/*"
+      ]
+    }
   }
 }

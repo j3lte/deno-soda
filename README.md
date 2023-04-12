@@ -1,5 +1,4 @@
-SODA Query
-===
+# SODA Query
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/j3lte/deno-soda?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)
@@ -9,6 +8,7 @@ SODA Query
 SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 
 ## Table of Contents
+
 - [SODA Query](#soda-query)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
@@ -22,6 +22,7 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
     - [Where](#where)
   - [Development](#development)
   - [License](#license)
+
 ## Features
 
 - Create SODA queries
@@ -137,7 +138,7 @@ See all methods in [`<SelectObject>`](https://deno.land/x/soda/mod.ts?s=SelectOb
 A `Where` object can be used to filter the data returned by the query. It uses static methods to create the `Where` object.
 
 ```ts
-import { Where, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { SodaQuery, Where } from "https://deno.land/x/soda/mod.ts";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 

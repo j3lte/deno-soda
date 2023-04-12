@@ -40,6 +40,7 @@ const runTest = (path: string) => {
       "coverage",
       "./.coverage/",
       "--lcov",
+      "--exclude=/test/",
     ]);
     await Deno.writeTextFile("./.coverage/coverageFile.lcov", cov.output);
 

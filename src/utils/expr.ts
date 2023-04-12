@@ -2,14 +2,13 @@ import { Where } from "../Where.ts";
 
 const isNumber = (obj: string) => !isNaN(parseFloat(obj));
 
-// TODO(@j3lte) might be wrong, could only be used for string literals, thus adding '' when string
+type Literal = string | number;
+
 export const handleLiteral = (
-  literal: string | number,
-):
-  | string
-  | number => (typeof literal === "string"
-    ? `'${literal}'`
-    : (isNumber(literal.toString()) ? literal : literal));
+  literal: Literal,
+): Literal => (typeof literal === "string"
+  ? `'${literal}'`
+  : (isNumber(literal.toString()) ? literal : literal));
 
 export const addExpr = (target: string[], args: Array<string | Record<string, string> | Where>) => {
   args.forEach((arg) => {
