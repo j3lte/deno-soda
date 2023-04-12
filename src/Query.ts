@@ -1,6 +1,6 @@
 import { Where } from "./Where.ts";
 import { toQS } from "./utils/qs.ts";
-import { SelectObject } from "./Select.ts";
+import { SelectImpl } from "./SelectImpl.ts";
 import { Order } from "./Order.ts";
 import { addExpr, expr } from "./utils/expr.ts";
 import { FieldImpl } from "./Field.ts";
@@ -299,10 +299,10 @@ export class SodaQuery<T> {
     return this;
   }
 
-  select(...selects: Array<string | SelectObject | FieldImpl>): this {
+  select(...selects: Array<string | SelectImpl | FieldImpl>): this {
     const selectArray = selects.map((
       s,
-    ) => (s instanceof SelectObject ? s.value : (typeof s === "object" ? s.name : s))).filter((s) =>
+    ) => (s instanceof SelectImpl ? s.value : (typeof s === "object" ? s.name : s))).filter((s) =>
       s
     );
     this.#select.push(...selectArray);

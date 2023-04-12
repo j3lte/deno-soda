@@ -1,13 +1,13 @@
 import { assertEquals, assertThrows } from "../dev_deps.ts";
-import { Select } from "../src/Select.ts";
 import {
+  Select,
   SelectAll,
   SelectGreatest,
   SelectLeast,
   SelectRegrIntercept,
   SelectRegrR2,
   SelectRegrSlope,
-} from "../src/SelectAlternative.ts";
+} from "../src/Select.ts";
 import { DataType, Field } from "../src/Field.ts";
 
 const createField = <T>(type: T, name = "test"): Field<T> =>
