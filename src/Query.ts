@@ -45,7 +45,8 @@ interface RequesOpts {
   method?: string;
 }
 
-type QueryObj = Record<string, string | number | boolean>;
+export type QueryObj = Record<string, string | number | boolean>;
+export type DataResponse<T> = Promise<{ error: Error | null; status: number; data: T }>;
 
 interface ExtraDataFields {
   /** System field */
@@ -126,7 +127,7 @@ export class SodaQuery<T> {
   private async requestData<T>(
     url: string,
     opts?: RequesOpts,
-  ): Promise<{ error: Error | null; status: number; data: T | null }> {
+  ): DataResponse<T | null> {
     const requestInit = {
       ...opts,
       headers: this.requestHeaders,
@@ -158,6 +159,11 @@ export class SodaQuery<T> {
     return { error: new Error(errorData), status: res.status, data: null };
   }
 
+  /**
+   * Return a query object that can be used to build a query string
+   *
+   * @returns query {QueryObj} The query object
+   */
   buildQuery(): QueryObj {
     const query: QueryObj = {};
 
@@ -413,7 +419,7 @@ export class SodaQuery<T> {
 
   execute(
     queryID?: string,
-  ): Promise<{ error: Error | null; status: number; data: Array<T & ExtraDataFields> }> {
+  ): DataResponse<Array<T & ExtraDataFields>> {
     return this.requestData<Array<T & ExtraDataFields>>(this.getURL(queryID)).then((res) => ({
       ...res,
       data: res.data ?? [],
@@ -422,7 +428,7 @@ export class SodaQuery<T> {
 
   executeGeoJSON(
     queryID?: string,
-  ): Promise<{ error: Error | null; status: number; data: unknown }> {
+  ): DataResponse<unknown> {
     const url = this.getURL(queryID).replace(/\.json/, ".geojson");
     return this.requestData<unknown>(url).then((res) => ({
       ...res,
@@ -430,7 +436,7 @@ export class SodaQuery<T> {
     }));
   }
 
-  getMetaData(): Promise<{ error: Error | null; status: number; data: unknown }> {
+  getMetaData(): DataResponse<unknown> {
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url);
   }
