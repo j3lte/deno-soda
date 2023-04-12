@@ -22,38 +22,60 @@ import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
 
 ## Example
 
+### Plain query
+
+The `SodaQuery` class accepts plain strings in its methods:
+
 ```ts
 import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
 
 const DOMAIN = "data.cityofnewyork.us";
 const DATASET = "erm2-nwe9";
 
-const query = new SodaQuery(DOMAIN).withDataset(DATASET)
+const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
   .select("agency", "borough", "complaint_type")
   .where("complaint_type", "LIKE", "Noise%")
   .where("created_date", ">", "2019-01-01T00:00:00.000")
   .where("created_date", "<", "2020-01-01T00:00:00.000")
-  .order("created_date", "DESC")
+  .orderBy("created_date DESC")
   .limit(10)
   .execute();
 ```
 
-## API
+### SQL Builder
+
+You can also use the SQL Builder to create your queries:
+
+```ts
+import { SodaQuery, Where, Order } from "https://deno.land/x/soda/mod.ts";
+
+const DOMAIN = "data.cityofnewyork.us";
+const DATASET = "erm2-nwe9";
+
+// Using the SQL Builder
+const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
+  .select("agency", "borough", "complaint_type")
+  .where(
+    Where.and(
+      Where.like("complaint_type", "Noise%"),
+      Where.gt("created_date", "2019-01-01T00:00:00.000"),
+      Where.lt("created_date", "2020-01-01T00:00:00.000")
+    )
+  )
+  .orderBy(Order.by("created_date").desc)
+  .limit(10)
+  .execute();
+```
 
 ### SodaQuery
 
 You can create a new SodaQuery instance by passing a domain and optionally an authOptions object and an options object.
 
 ```ts
-import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { SodaQuery, createQueryWithDataset } from "https://deno.land/x/soda/mod.ts";
 
-const query = new SodaQuery("data.organization.com");
-```
-
-There is also a shorthand, that will use the domain and dataset ID:
-
-```ts
-import { createQueryWithDataset } from "https://deno.land/x/soda/mod.ts";
+const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
+// Same thing:
 
 const query = createQueryWithDataset("data.organization.com", "dataset-id");
 ```
