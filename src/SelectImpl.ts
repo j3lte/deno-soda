@@ -117,6 +117,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Number
+   *
    * Docs: https://dev.socrata.com/docs/functions/avg.html
    */
   avg(): SelectImpl<DataType.Number> {
@@ -130,6 +131,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Number
+   *
    * Docs: https://dev.socrata.com/docs/functions/sum.html
    */
   sum(): SelectImpl<DataType.Number> {
@@ -143,6 +145,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works like SELECT COUNT(*)
+   *
    * Docs: https://dev.socrata.com/docs/functions/count.html
    */
   count(): SelectImpl<T> {
@@ -153,6 +156,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Returns distinct set of records
+   *
    * Docs: https://dev.socrata.com/docs/functions/distinct.html
    */
   distinct(): SelectImpl<T> {
@@ -165,8 +169,6 @@ export class SelectImpl<T = DataType> {
    * Returns the maximum of a given set of numbers
    *
    * Works on fields of type Number/Text/FloatingTimestamp/FixedTimestamp
-   *
-   * _This function works with 2.1 endpoint(s)_
    *
    * Docs: https://dev.socrata.com/docs/functions/max.html
    */
@@ -198,8 +200,6 @@ export class SelectImpl<T = DataType> {
    * Returns the minimum of a given set of numbers
    *
    * Works on fields of type Number/Text/FloatingTimestamp/FixedTimestamp
-   *
-   * _This function works with 2.1 endpoint(s)_
    *
    * Docs: https://dev.socrata.com/docs/functions/min.html
    */
@@ -279,8 +279,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_d.html
    */
   dateExtractDayOfDate(): SelectImpl<DataType.FloatingTimestamp> {
@@ -294,8 +292,6 @@ export class SelectImpl<T = DataType> {
    * Extracts the day of the week as an integer between 0 and 6 (inclusive).
    *
    * Works on fields of type Floating Timestamp
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_dow.html
    */
@@ -311,8 +307,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_hh.html
    */
   dateExtractHourOfDay(): SelectImpl<DataType.FloatingTimestamp> {
@@ -326,8 +320,6 @@ export class SelectImpl<T = DataType> {
    * Extracts the month as an integer.
    *
    * Works on fields of type Floating Timestamp
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_m.html
    */
@@ -343,8 +335,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_mm.html
    */
   dateExtractMinute(): SelectImpl<DataType.FloatingTimestamp> {
@@ -358,8 +348,6 @@ export class SelectImpl<T = DataType> {
    * Extracts the second from the time as an integer.
    *
    * Works on fields of type Floating Timestamp
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_ss.html
    */
@@ -375,8 +363,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_woy.html
    */
   dateExtractWeekOfYear(): SelectImpl<DataType.FloatingTimestamp> {
@@ -390,8 +376,6 @@ export class SelectImpl<T = DataType> {
    * Extracts the year as an integer.
    *
    * Works on fields of type Floating Timestamp
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/date_extract_y.html
    */
@@ -407,8 +391,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.0 and 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_trunc_y.html
    */
   dateTruncYear(): SelectImpl<DataType.FloatingTimestamp> {
@@ -419,8 +401,6 @@ export class SelectImpl<T = DataType> {
    * Truncates a calendar date at the year/month threshold
    *
    * Works on fields of type Floating Timestamp
-   *
-   * __This function works with 2.0 and 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/date_trunc_ym.html
    */
@@ -433,8 +413,6 @@ export class SelectImpl<T = DataType> {
    *
    * Works on fields of type Floating Timestamp
    *
-   * __This function works with 2.0 and 2.1 endpoint(s)__
-   *
    * Docs: https://dev.socrata.com/docs/functions/date_trunc_ymd.html
    */
   dateTruncYearMonthDay(): SelectImpl<DataType.FloatingTimestamp> {
@@ -446,6 +424,7 @@ export class SelectImpl<T = DataType> {
 
   /**
    * Works on fields of type Point
+   *
    * Docs: https://dev.socrata.com/docs/functions/distance_in_meters.html
    */
   distanceInMeters(lat: number, lon: number): SelectImpl<DataType.Point> {
@@ -531,8 +510,6 @@ export class SelectImpl<T = DataType> {
    * Returns the number of vertices in a geospatial data record
    *
    * Works on fields of type Polygon, Line, Point, MultiPoint, MultiLine, MultiPolygon
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/num_points.html
    */
@@ -628,8 +605,6 @@ export class SelectImpl<T = DataType> {
    * Returns a bounding box that encloses a set of geometries
    *
    * Works on fields of type Point, MultiPoint, Line, MultiLine, Polygon, MultiPolygon
-   *
-   * __This function works with 2.1 endpoint(s)__
    *
    * Docs: https://dev.socrata.com/docs/functions/extent.html
    */

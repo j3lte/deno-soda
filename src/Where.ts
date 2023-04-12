@@ -113,8 +113,6 @@ export class Where {
    * - Fixed timestamp
    * - Text
    *
-   * This function works with 2.1 endpoint(s)
-   *
    * @param field  field name or Field instance
    * @param startValue  start value
    * @param endValue end value

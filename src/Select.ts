@@ -34,8 +34,6 @@ function SelectMultipleFunc(
 /**
  * Returns the largest value among its arguments, ignoring NULLs.
  *
- * __This function works with 2.1 endpoint(s)__
- *
  * Docs: https://dev.socrata.com/docs/functions/greatest.html
  */
 export function SelectGreatest(
@@ -53,8 +51,6 @@ export function SelectGreatest(
 
 /**
  * Returns the smallest value among its arguments, ignoring NULLs.
- *
- * __This function works with 2.1 endpoint(s)__
  *
  * Docs: https://dev.socrata.com/docs/functions/least.html
  */
@@ -74,8 +70,6 @@ export function SelectLeast(
 /**
  * Returns the y-intercept of the linear least squares fit
  *
- * __This function works with 2.1 endpoint(s)__
- *
  * Docs: https://dev.socrata.com/docs/functions/regr_intercept.html
  */
 export function SelectRegrIntercept(
@@ -94,8 +88,6 @@ export function SelectRegrIntercept(
 /**
  * Returns the square of the correlation coefficient (r²)
  *
- * __This function works with 2.1 endpoint(s)__
- *
  * Docs: https://dev.socrata.com/docs/functions/regr_r2.html
  */
 export function SelectRegrR2(
@@ -113,8 +105,6 @@ export function SelectRegrR2(
 
 /**
  * Returns the slope of the linear least squares fit
- *
- * __This function works with 2.1 endpoint(s)__
  *
  * Docs: https://dev.socrata.com/docs/functions/regr_slope.html
  */
