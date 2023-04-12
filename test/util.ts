@@ -1,6 +1,6 @@
 import { crypto } from "../dev_deps.ts";
 
-const createHash = (buf: ArrayBuffer) => {
+const createHash = (buf: ArrayBuffer): Promise<string> => {
   const hash = crypto.subtle.digest("SHA-256", buf).then((hash) =>
     // ArrayBuffer to hex string;
     Array.from(new Uint8Array(hash))
@@ -14,7 +14,7 @@ const store = new Map<string, Response>();
 const originalFetch = globalThis.fetch;
 
 /** Generates a string out of a `Request` object. */
-export async function getRequestString(request: Request) {
+export async function getRequestString(request: Request): Promise<string> {
   request = request.clone();
   const hash = await createHash(await request.arrayBuffer());
 
@@ -41,13 +41,13 @@ export async function getRequestString(request: Request) {
  *
  * @throws 'request not mocked' error if the request of fetch() isn't in the store.
  */
-export async function mockFetch(request: Request, response: Response) {
+export async function mockFetch(request: Request, response: Response): Promise<void> {
   store.set(await getRequestString(request), response);
 
   globalThis.fetch = async function fetch(
     input: string | URL | Request,
     init?: RequestInit | undefined,
-  ) {
+  ): Promise<Response> {
     if (input instanceof URL) {
       input = input.toString();
     }
@@ -68,6 +68,6 @@ export async function mockFetch(request: Request, response: Response) {
 }
 
 /** Restore original fetch(). */
-export function unMockFetch() {
+export function unMockFetch(): void {
   globalThis.fetch = originalFetch;
 }

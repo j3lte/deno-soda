@@ -134,7 +134,7 @@ export class SodaQuery<T> {
     return { error: new Error(errorData), status: res.status, data: null };
   }
 
-  buildQuery() {
+  buildQuery(): QueryObj {
     const query: QueryObj = {};
 
     if (this.#simple) {
@@ -184,7 +184,7 @@ export class SodaQuery<T> {
    * Get the URL that will be used to make the request, can be used for debugging
    * @returns {string} The URL
    */
-  getURL(queryID?: string) {
+  getURL(queryID?: string): string {
     let queryObj: QueryObj;
 
     if (queryID) {
@@ -207,7 +207,7 @@ export class SodaQuery<T> {
    * @returns {string} The URL
    * @throws {Error} If no dataset is set
    */
-  getDevURL() {
+  getDevURL(): string {
     if (!this.#datasetId) {
       throw new Error("no dataset given to work against!");
     }
@@ -217,7 +217,14 @@ export class SodaQuery<T> {
   /**
    * Get the last response headers
    */
-  get headers() {
+  get headers(): {
+    raw: Headers | null;
+    lastModified: string | null | undefined;
+    etag: string | null | undefined;
+    fields: string | null | undefined;
+    types: string | null | undefined;
+    outOfDate: string | null | undefined;
+  } {
     return {
       raw: this.#lastResponseHeaders,
       lastModified: this.#lastResponseHeaders?.get("Last-Modified"),
@@ -233,7 +240,7 @@ export class SodaQuery<T> {
    *
    * @param datasetId The dataset to work against
    */
-  withDataset(datasetId: string) {
+  withDataset(datasetId: string): this {
     if (this.#datasetId && this.#strict) {
       throw new Error("dataset already set!");
     }
@@ -255,7 +262,7 @@ export class SodaQuery<T> {
    *  .getRows();
    * ```
    */
-  simple(query: Record<string, string | number>) {
+  simple(query: Record<string, string | number>): this {
     this.#simple = {
       ...this.#simple,
       ...query,
@@ -287,12 +294,12 @@ export class SodaQuery<T> {
    *   .execute();
    * ```
    */
-  soql(query: string) {
+  soql(query: string): this {
     this.#soql = query;
     return this;
   }
 
-  select(...selects: Array<string | SelectObject | FieldImpl>) {
+  select(...selects: Array<string | SelectObject | FieldImpl>): this {
     const selectArray = selects.map((
       s,
     ) => (s instanceof SelectObject ? s.value : (typeof s === "object" ? s.name : s))).filter((s) =>
@@ -302,22 +309,22 @@ export class SodaQuery<T> {
     return this;
   }
 
-  where(...where: Array<string | Record<string, string> | Where>) {
+  where(...where: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#where, where);
     return this;
   }
 
-  having(...having: Array<string | Record<string, string> | Where>) {
+  having(...having: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#having, having);
     return this;
   }
 
-  groupBy(...group: string[]) {
+  groupBy(...group: string[]): this {
     this.#group.push(...group);
     return this;
   }
 
-  orderBy(...order: Array<string | Order>) {
+  orderBy(...order: Array<string | Order>): this {
     const orders = order.map((order: string | Order) =>
       order instanceof Order
         ? order.value
@@ -327,12 +334,12 @@ export class SodaQuery<T> {
     return this;
   }
 
-  offset(offset: number) {
+  offset(offset: number): this {
     this.#offset = offset;
     return this;
   }
 
-  limit(limit: number) {
+  limit(limit: number): this {
     this.#limit = limit;
     return this;
   }
@@ -342,7 +349,7 @@ export class SodaQuery<T> {
    * @param q {string} The search query
    * @returns {SodaQuery} The query object
    */
-  search(q: string) {
+  search(q: string): this {
     this.#_q = q;
     return this;
   }
@@ -351,12 +358,12 @@ export class SodaQuery<T> {
    * Include system fields in the response
    * @returns {SodaQuery} The query object
    */
-  withSystemFields() {
+  withSystemFields(): this {
     this.#withSystemFields = true;
     return this;
   }
 
-  clear() {
+  clear(): this {
     this.#simple = null;
     this.#soql = null;
     this.#select = [];
@@ -374,7 +381,7 @@ export class SodaQuery<T> {
   /**
    * Build a query object and store it in the query map, then clear the query to start a new one
    */
-  prepare(queryID: string) {
+  prepare(queryID: string): this {
     this.#queryMap.set(queryID, { ...this.buildQuery() });
     this.clear();
     return this;
@@ -400,7 +407,7 @@ export class SodaQuery<T> {
     }));
   }
 
-  getMetaData() {
+  getMetaData(): Promise<{ error: Error | null; status: number; data: unknown }> {
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url);
   }
@@ -411,4 +418,4 @@ export const createQueryWithDataset = <T>(
   dataSetId: string,
   authOpts: AuthOpts = {},
   options: Options = {},
-) => new SodaQuery<T>(domain, authOpts, options).withDataset(dataSetId);
+): SodaQuery<T> => new SodaQuery<T>(domain, authOpts, options).withDataset(dataSetId);

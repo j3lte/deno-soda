@@ -1,9 +1,5 @@
+// TODO(@j3lte) - Fix the 'any' types in this file
 // deno-lint-ignore-file no-explicit-any
-// TODO: Replace `any` with proper types
-
-// Copied and modified from https://github.com/manyuanrong/sql-builder/blob/master/where.ts
-// Copyright (c) 2019 EnokMan
-// MIT License
 
 import { replaceParams, SupportTypeElement } from "./utils/param.ts";
 import { DataType, Field, FieldImpl, getFieldName } from "./Field.ts";
@@ -31,7 +27,7 @@ export class Where {
     return new Where(expr, params);
   }
 
-  static eq(field: string | FieldImpl, value: any) {
+  static eq(field: string | FieldImpl, value: any): Where {
     if (value === null) {
       return this.isNull(field);
     }
@@ -50,61 +46,61 @@ export class Where {
   static gt(
     field: string | FieldImpl,
     value: BasicType,
-  ) {
+  ): Where {
     return this.expr("?? > ?", getFieldName(field), value);
   }
 
   static gte(
     field: string | FieldImpl,
     value: BasicType,
-  ) {
+  ): Where {
     return this.expr("?? >= ?", getFieldName(field), value);
   }
 
   static lt(
     field: string | FieldImpl,
     value: BasicType,
-  ) {
+  ): Where {
     return this.expr("?? < ?", getFieldName(field), value);
   }
 
   static lte(
     field: string | FieldImpl,
     value: BasicType,
-  ) {
+  ): Where {
     return this.expr("?? <= ?", getFieldName(field), value);
   }
 
-  static ne(field: string | FieldImpl, value: SupportTypeElement) {
+  static ne(field: string | FieldImpl, value: SupportTypeElement): Where {
     if (value === null) {
       return this.isNotNull(field);
     }
     return this.expr("?? != ?", getFieldName(field), value);
   }
 
-  static isNull(field: string | FieldImpl) {
+  static isNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NULL", getFieldName(field));
   }
 
-  static isNotNull(field: string | FieldImpl) {
+  static isNotNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NOT NULL", getFieldName(field));
   }
 
-  static in(field: string | FieldImpl, ...values: any[]) {
+  static in(field: string | FieldImpl, ...values: any[]): Where {
     const params = values.length > 1 ? values : values[0];
     return this.expr("?? in ?", getFieldName(field), params);
   }
 
-  static notIn(field: string | FieldImpl, ...values: any[]) {
+  static notIn(field: string | FieldImpl, ...values: any[]): Where {
     const params: any[] = values.length > 1 ? values : values[0];
     return this.expr("?? not in ?", getFieldName(field), params as any);
   }
 
-  static like(field: string | FieldImpl, value: any) {
+  static like(field: string | FieldImpl, value: any): Where {
     return this.expr("?? like ?", getFieldName(field), value);
   }
 
-  static notLike(field: string | FieldImpl, value: any) {
+  static notLike(field: string | FieldImpl, value: any): Where {
     return this.expr("?? not like ?", getFieldName(field), value);
   }
 
@@ -132,7 +128,7 @@ export class Where {
       | Field<DataType.Text>,
     startValue: any,
     endValue: any,
-  ) {
+  ): Where {
     return this.expr(
       "?? between ? and ?",
       getFieldName(field),
@@ -150,7 +146,7 @@ export class Where {
       | Field<DataType.Text>,
     startValue: any,
     endValue: any,
-  ) {
+  ): Where {
     return this.expr(
       "?? not between ? and ?",
       getFieldName(field),
@@ -159,6 +155,7 @@ export class Where {
     );
   }
 
+  // deno-lint-ignore explicit-function-return-type
   static field(name: string | FieldImpl) {
     const fName = getFieldName(name);
     return {
@@ -221,7 +218,7 @@ export class Where {
     lonNW: number,
     latSE: number,
     lonSE: number,
-  ) {
+  ): Where {
     return this.expr(
       "within_box(??, ?, ?, ?, ?)",
       getFieldName(field),
@@ -244,7 +241,7 @@ export class Where {
     lat: number,
     lon: number,
     radius: number,
-  ) {
+  ): Where {
     return this.expr(
       "within_circle(??, ?, ?, ?)",
       getFieldName(field),
@@ -259,7 +256,7 @@ export class Where {
    * @param field The field to search
    * @param value The value to search for
    */
-  static startsWith(field: string | Field<DataType.Text>, value: string) {
+  static startsWith(field: string | Field<DataType.Text>, value: string): Where {
     return this.expr("starts_with(??, ?)", getFieldName(field), value);
   }
 
@@ -283,7 +280,7 @@ export class Where {
       | Field<DataType.MultiLine>
       | Field<DataType.MultiPolygon>,
     value: string,
-  ) {
+  ): Where {
     return this.expr("intersects(??, ?)", getFieldName(field), value);
   }
 }

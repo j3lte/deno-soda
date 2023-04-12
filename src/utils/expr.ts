@@ -2,12 +2,14 @@ import { Where } from "../Where.ts";
 
 const isNumber = (obj: string) => !isNaN(parseFloat(obj));
 
-// TODO: might be wrong, could only be used for string literals, thus adding '' when string
+// TODO(@j3lte) might be wrong, could only be used for string literals, thus adding '' when string
 export const handleLiteral = (
   literal: string | number,
-) => (typeof literal === "string"
-  ? `'${literal}'`
-  : (isNumber(literal.toString()) ? literal : literal));
+):
+  | string
+  | number => (typeof literal === "string"
+    ? `'${literal}'`
+    : (isNumber(literal.toString()) ? literal : literal));
 
 export const addExpr = (target: string[], args: Array<string | Record<string, string> | Where>) => {
   args.forEach((arg) => {
@@ -23,12 +25,10 @@ export const addExpr = (target: string[], args: Array<string | Record<string, st
   });
 };
 
-export const expr = {
+export const expr: {
+  and: (...clauses: string[]) => string;
+  or: (...clauses: string[]) => string;
+} = {
   and: (...clauses: string[]) => clauses.map((clause) => `(${clause})`).join(" and "),
   or: (...clauses: string[]) => clauses.map((clause) => `(${clause})`).join(" or "),
-  gt: (column: string, literal: string | number) => `${column} > ${handleLiteral(literal)}`,
-  gte: (column: string, literal: string | number) => `${column} >= ${handleLiteral(literal)}`,
-  lt: (column: string, literal: string | number) => `${column} < ${handleLiteral(literal)}`,
-  lte: (column: string, literal: string | number) => `${column} <= ${handleLiteral(literal)}`,
-  eq: (column: string, literal: string | number) => `${column} = ${handleLiteral(literal)}`,
 };

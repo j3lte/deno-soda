@@ -17,26 +17,25 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 ## Installation
 
 ```ts
-import { SodaQuery } from 'https://deno.land/x/soda/mod.ts'
+import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
 ```
 
 ## Example
 
 ```ts
-import { SodaQuery } from 'https://deno.land/x/soda/mod.ts'
+import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
 
-const DOMAIN = 'data.cityofnewyork.us';
-const DATASET = 'erm2-nwe9';
+const DOMAIN = "data.cityofnewyork.us";
+const DATASET = "erm2-nwe9";
 
 const query = new SodaQuery(DOMAIN).withDataset(DATASET)
-  .select('agency', 'borough', 'complaint_type')
-  .where('complaint_type', 'LIKE', 'Noise%')
-  .where('created_date', '>', '2019-01-01T00:00:00.000')
-  .where('created_date', '<', '2020-01-01T00:00:00.000')
-  .order('created_date', 'DESC')
+  .select("agency", "borough", "complaint_type")
+  .where("complaint_type", "LIKE", "Noise%")
+  .where("created_date", ">", "2019-01-01T00:00:00.000")
+  .where("created_date", "<", "2020-01-01T00:00:00.000")
+  .order("created_date", "DESC")
   .limit(10)
-  .execute()
-
+  .execute();
 ```
 
 ## API
@@ -46,7 +45,7 @@ const query = new SodaQuery(DOMAIN).withDataset(DATASET)
 You can create a new SodaQuery instance by passing a domain and optionally an authOptions object and an options object.
 
 ```ts
-import { SodaQuery } from 'https://deno.land/x/soda/mod.ts'
+import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
 
 const query = new SodaQuery("data.organization.com");
 ```
@@ -54,7 +53,7 @@ const query = new SodaQuery("data.organization.com");
 There is also a shorthand, that will use the domain and dataset ID:
 
 ```ts
-import { createQueryWithDataset } from 'https://deno.land/x/soda/mod.ts'
+import { createQueryWithDataset } from "https://deno.land/x/soda/mod.ts";
 
 const query = createQueryWithDataset("data.organization.com", "dataset-id");
 ```
@@ -64,6 +63,12 @@ const query = createQueryWithDataset("data.organization.com", "dataset-id");
 > **Note:** Most methods return the instance of SodaQuery. This means that you can chain methods together.
 
 > _---> Documentation coming soon <---_
+
+## Development
+
+TODO:
+
+- [ ] Add `case` method
 
 ## License
 

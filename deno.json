@@ -23,6 +23,12 @@
     }
   },
   "lint": {
+    "rules": {
+      "include": [
+        "ban-untagged-todo",
+        "explicit-function-return-type"
+      ]
+    },
     "files": {
       "exclude": [
         "./local_test.ts",

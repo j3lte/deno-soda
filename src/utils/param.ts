@@ -8,7 +8,7 @@ export type SupportTypeElement =
   | Record<string, unknown>;
 export type SupportType = SupportTypeElement | SupportTypeElement[];
 
-function formatDate(date: Date) {
+function formatDate(date: Date): string {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const days = date.getDate().toString().padStart(2, "0");
@@ -19,7 +19,7 @@ function formatDate(date: Date) {
   return `${year}-${month}-${days} ${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
-function escapeString(str: string) {
+function escapeString(str: string): string {
   return str.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
 }
 

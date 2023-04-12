@@ -4,7 +4,7 @@ import { SelectFunction, SelectObject } from "./Select.ts";
 /**
  * Shortcut for Select("*")
  */
-export function SelectAll() {
+export function SelectAll(): SelectObject {
   return new SelectObject("*");
 }
 
@@ -13,7 +13,7 @@ function SelectMultipleFunc(
   funcError: string,
   testArray: Array<DataType>,
   ...fields: Array<string | FieldImpl>
-) {
+): SelectObject {
   const tested = fields.every((field) =>
     typeof field === "string" ||
     testFieldImpl(field, ...testArray)
@@ -39,7 +39,7 @@ export function SelectGreatest(
   ...fields: Array<
     string | Field<DataType.Text> | Field<DataType.Number> | Field<DataType.FloatingTimestamp>
   >
-) {
+): SelectObject {
   return SelectMultipleFunc(
     SelectFunction.Greatest,
     "Can only use LARGEST on Text, Number, and Floating Timestamp fields",
@@ -59,7 +59,7 @@ export function SelectLeast(
   ...fields: Array<
     string | Field<DataType.Text> | Field<DataType.Number> | Field<DataType.FloatingTimestamp>
   >
-) {
+): SelectObject {
   return SelectMultipleFunc(
     SelectFunction.Least,
     "Can only use LEAST on Text, Number, and Floating Timestamp fields",
@@ -78,7 +78,7 @@ export function SelectLeast(
 export function SelectRegrIntercept(
   xField: string | Field<DataType.Number>,
   yField: string | Field<DataType.Number>,
-) {
+): SelectObject {
   return SelectMultipleFunc(
     SelectFunction.RegrIntercept,
     "Can only use REGR_INTERCEPT on Number fields",
@@ -98,7 +98,7 @@ export function SelectRegrIntercept(
 export function SelectRegrR2(
   xField: string | Field<DataType.Number>,
   yField: string | Field<DataType.Number>,
-) {
+): SelectObject {
   return SelectMultipleFunc(
     SelectFunction.RegrR2,
     "Can only use REGR_R2 on Number fields",
@@ -118,7 +118,7 @@ export function SelectRegrR2(
 export function SelectRegrSlope(
   xField: string | Field<DataType.Number>,
   yField: string | Field<DataType.Number>,
-) {
+): SelectObject {
   return SelectMultipleFunc(
     SelectFunction.RegrSlope,
     "Can only use REGR_SLOPE on Number fields",

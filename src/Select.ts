@@ -41,7 +41,9 @@ export enum SelectFunction {
 }
 
 /**
- * This is not a complete implementation of the Socrata Select API.
+ * SelectObject is used to build a select query
+ *
+ * Note: This is an internal class and should not be used directly
  */
 export class SelectObject<T = DataType> {
   private fieldObj: FieldImpl | null = null;
@@ -616,27 +618,7 @@ function Select(): SelectObject<DataType._Unknown>;
 function Select<T extends string>(field: T): SelectObject<DataType._Unknown>;
 function Select<T extends FieldImpl>(field: T): SelectObject<T["type"]>;
 function Select<T extends DataType>(field: Field<T>): SelectObject<T>;
-function Select(field?: string | FieldImpl) {
+function Select(field?: string | FieldImpl): SelectObject<DataType._Unknown> {
   return new SelectObject(field);
 }
 export { Select };
-
-// TODO: Select case
-/*
-  static case(
-    _field: string | FieldImpl,
-    _cases: Record<string, string | number>,
-    _defaultCase: string | number,
-  ) {
-    throw new Error("Not implemented");
-    // const casesSql = Object.entries(cases)
-    //   .map(([key, value]) => `WHEN ${key} THEN ${value}`)
-    //   .join(" ");
-    // return this.expr(
-    //   "CASE ?? ${casesSql} ELSE ${defaultCase} END",
-    //   getFieldName(field),
-    //   casesSql,
-    //   defaultCase,
-    // );
-  }
- */
