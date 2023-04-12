@@ -1,5 +1,8 @@
+export type { DataResponse, Field, FieldImpl, QueryObj } from "./types.ts";
+export type { AuthOpts, Options } from "./interfaces.ts";
+export { DataType } from "./enums.ts";
+
 export { createQueryWithDataset, SodaQuery } from "./Query.ts";
-export type { AuthOpts, DataResponse, Options, QueryObj } from "./Query.ts";
 
 export { Where } from "./Where.ts";
 
@@ -18,5 +21,4 @@ export { Order } from "./Order.ts";
 
 export { expr } from "./utils/expr.ts";
 
-export { DataType, SystemFields } from "./Field.ts";
-export type { Field, FieldImpl } from "./Field.ts";
+export { SystemFields } from "./Field.ts";

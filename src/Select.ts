@@ -1,4 +1,7 @@
-import { DataType, Field, FieldImpl, getFieldName, testFieldImpl } from "./Field.ts";
+import type { Field, FieldImpl } from "./types.ts";
+import { DataType } from "./enums.ts";
+
+import { getFieldName, testFieldImpl } from "./Field.ts";
 import { SelectFunction, SelectImpl } from "./SelectImpl.ts";
 
 /**

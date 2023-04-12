@@ -1,62 +1,11 @@
+import type { AuthOpts, ExtraDataFields, Options, RequesOpts } from "./interfaces.ts";
+import type { DataResponse, FieldImpl, QueryObj } from "./types.ts";
+
 import { Where } from "./Where.ts";
 import { toQS } from "./utils/qs.ts";
 import { SelectImpl } from "./SelectImpl.ts";
 import { Order } from "./Order.ts";
 import { addExpr, expr } from "./utils/expr.ts";
-import { FieldImpl } from "./Field.ts";
-
-export interface AuthOpts {
-  /**
-   * API token
-   *
-   * The Socrata Open Data API uses application tokens for two purposes:
-   * Using an application token allows us to throttle by application, rather than via IP address, which gives you a higher throttling limit
-   * Authentication using OAuth
-   *
-   * Docs: https://dev.socrata.com/docs/app-tokens.html
-   */
-  apiToken?: string;
-  /**
-   * Username (needs password) for Basic HTTP Auth
-   *
-   * Docs: https://dev.socrata.com/docs/authentication.html#authenticating-using-http-basic-authentication
-   */
-  username?: string;
-  /**
-   * Password (needs username) for Basic HTTP Auth
-   *
-   * Docs: https://dev.socrata.com/docs/authentication.html#authenticating-using-http-basic-authentication
-   */
-  password?: string;
-  /**
-   * OAuth Access Token
-   *
-   * Docs: https://dev.socrata.com/docs/authentication.html#using-an-oauth-20-access-token
-   */
-  accessToken?: string;
-}
-
-export interface Options {
-  /** Strict mode. If enabled, this prevents the Query from changing the dataset ID after it has been set once */
-  strict?: boolean;
-}
-
-interface RequesOpts {
-  method?: string;
-}
-
-export type QueryObj = Record<string, string | number | boolean>;
-export type DataResponse<T> = Promise<{ error: Error | null; status: number; data: T }>;
-
-interface ExtraDataFields {
-  /** System field */
-  ":id"?: string;
-  /** System field */
-  ":created_at"?: string;
-  /** System field */
-  ":updated_at"?: string;
-}
-
 export class SodaQuery<T> {
   #domain: string;
   #datasetId: string | null = null;

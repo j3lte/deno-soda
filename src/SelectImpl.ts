@@ -1,4 +1,6 @@
-import { DataType, FieldImpl, testFieldImpl } from "./Field.ts";
+import type { FieldImpl } from "./types.ts";
+import { testFieldImpl } from "./Field.ts";
+import { DataType } from "./enums.ts";
 
 export enum SelectFunction {
   Abs = "abs",
