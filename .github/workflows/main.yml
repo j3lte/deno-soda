@@ -1,0 +1,19 @@
+name: Deno CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Setup Deno
+              uses: denoland/setup-deno@v1
+            - name: Tests
+              run: deno test

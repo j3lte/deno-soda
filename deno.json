@@ -1,0 +1,33 @@
+{
+  "tasks": {
+    "format": "deno fmt ./src/ ./test/",
+    "lint": "deno lint ./src/ ./test/",
+    "test": "deno test --coverage=.coverage",
+    "coverage": "deno coverage .coverage --lcov > ./.coverage/coverage.lcov",
+    "test:watch": "deno test --watch",
+    "clean": "rm -r ./coverage",
+    "localTest": "deno run --allow-read --allow-write --allow-run ./runTest.ts"
+  },
+  "fmt": {
+    "options": {
+      "indentWidth": 2,
+      "lineWidth": 100,
+      "singleQuote": false,
+      "useTabs": false,
+      "proseWrap": "preserve"
+    },
+    "files": {
+      "exclude": [
+        "./.coverage/**/*"
+      ]
+    }
+  },
+  "lint": {
+    "files": {
+      "exclude": [
+        "./local_test.ts",
+        "./.coverage/**/*"
+      ]
+    }
+  }
+}

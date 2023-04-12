@@ -1,0 +1,9 @@
+.env*
+*.json
+!deno.json
+.DS_Store
+node_modules
+npm/
+_local_testing.ts
+.coverage/
+coverage.lcov
