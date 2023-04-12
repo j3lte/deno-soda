@@ -400,7 +400,6 @@ export class SodaQuery<T> {
     queryID?: string,
   ): Promise<{ error: Error | null; status: number; data: unknown }> {
     const url = this.getURL(queryID).replace(/\.json/, ".geojson");
-    console.log(url);
     return this.requestData<unknown>(url).then((res) => ({
       ...res,
       data: res.data ?? { type: "FeatureCollection", features: [] },
