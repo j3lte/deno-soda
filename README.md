@@ -173,15 +173,9 @@ See all methods in [`<Where>`](https://deno.land/x/soda/mod.ts?s=Where) interfac
 
 TODO:
 
-- [ ] Add `case` method
-- Missing functions (investigate [this doc](https://dev.socrata.com/docs/transforms/))
-  - [ ] `centroid`
-  - [ ] `datetime_add_d`
-  - [ ] `datetime_add_mm`
-  - [ ] `datetime_add_hh`
-  - [ ] `datetime_add_ss`
-  - [ ] `datetime_diff`
-  - [ ] `is_empty`
+- Add `case` method
+- Missing undocemented functions (investigate [this doc](https://dev.socrata.com/docs/transforms/))
+- Improve docs (JSDoc categories etc)
 
 ## License
 
