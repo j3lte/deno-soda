@@ -70,6 +70,9 @@ Deno.test("Select (Number Functions)", () => {
   assertEquals(createSelect().avg().value, "avg(test)");
   assertThrows(() => createSelect(DataType.Text).avg());
 
+  assertEquals(createSelect().abs().value, "abs(test)");
+  assertThrows(() => createSelect(DataType.Text).abs());
+
   assertEquals(createSelect().min().value, "min(test)");
   assertThrows(() => createSelect(DataType.Checkbox).min());
 
@@ -135,6 +138,15 @@ Deno.test("Select (Text functions", () => {
 
   assertEquals(createSelect().upperCase().value, "upper(test)");
   assertThrows(() => createSelect(DataType.Number).upperCase());
+
+  assertEquals(createSelect().length().value, "length(test)");
+  assertThrows(() => createSelect(DataType.Number).length());
+
+  assertEquals(createSelect().pad(1, "a", "LEFT").value, "pad_left(test, 1, 'a')");
+  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "LEFT"));
+
+  assertEquals(createSelect().pad(1, "a", "RIGHT").value, "pad_right(test, 1, 'a')");
+  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "RIGHT"));
 });
 
 Deno.test("Select (Spatial functions)", () => {

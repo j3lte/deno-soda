@@ -14,6 +14,8 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 - Build complex queries with ease, in a functional way
 - SQL Builder, inspired by [sql-builder](https://deno.land/x/sql_builder)
 
+> _**Note:** This client is only for fetching data from Socrata Open Data API. It does not support creating, updating or deleting data._
+
 ## Installation
 
 ```ts
@@ -47,7 +49,7 @@ const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
 You can also use the SQL Builder to create your queries:
 
 ```ts
-import { SodaQuery, Where, Order } from "https://deno.land/x/soda/mod.ts";
+import { Order, SodaQuery, Where } from "https://deno.land/x/soda/mod.ts";
 
 const DOMAIN = "data.cityofnewyork.us";
 const DATASET = "erm2-nwe9";
@@ -59,8 +61,8 @@ const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
     Where.and(
       Where.like("complaint_type", "Noise%"),
       Where.gt("created_date", "2019-01-01T00:00:00.000"),
-      Where.lt("created_date", "2020-01-01T00:00:00.000")
-    )
+      Where.lt("created_date", "2020-01-01T00:00:00.000"),
+    ),
   )
   .orderBy(Order.by("created_date").desc)
   .limit(10)
@@ -72,7 +74,7 @@ const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
 You can create a new SodaQuery instance by passing a domain and optionally an authOptions object and an options object.
 
 ```ts
-import { SodaQuery, createQueryWithDataset } from "https://deno.land/x/soda/mod.ts";
+import { createQueryWithDataset, SodaQuery } from "https://deno.land/x/soda/mod.ts";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 // Same thing:
@@ -91,6 +93,14 @@ const query = createQueryWithDataset("data.organization.com", "dataset-id");
 TODO:
 
 - [ ] Add `case` method
+- Missing functions (investigate [this doc](https://dev.socrata.com/docs/transforms/))
+  - [ ] `centroid`
+  - [ ] `datetime_add_d`
+  - [ ] `datetime_add_mm`
+  - [ ] `datetime_add_hh`
+  - [ ] `datetime_add_ss`
+  - [ ] `datetime_diff`
+  - [ ] `is_empty`
 
 ## License
 

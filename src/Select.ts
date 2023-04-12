@@ -1,8 +1,10 @@
 import { DataType, Field, FieldImpl, testFieldImpl } from "./Field.ts";
 
 export enum SelectFunction {
-  Field = "field",
+  Abs = "abs",
   Avg = "avg",
+  Extent = "extent",
+  Field = "field",
   Count = "count",
   ConvexHull = "convex_hull",
   DateExtractDayOfDate = "date_extract_d",
@@ -19,13 +21,15 @@ export enum SelectFunction {
   DistanceInMeter = "distance_in_meters",
   Distinct = "distinct",
   Greatest = "greatest",
-  Extent = "extent",
   Least = "least",
+  Length = "length",
   Log = "ln",
   LowerCase = "lower",
   Max = "max",
   Min = "min",
   NumberOfVertices = "num_points",
+  PadLeft = "pad_left",
+  PadRight = "pad_right",
   RegrIntercept = "regr_intercept",
   RegrR2 = "regr_r2",
   RegrSlope = "regr_slope",
@@ -94,6 +98,18 @@ export class SelectObject<T = DataType> {
       throw new Error("Cannot use AS on * (all fields)");
     }
     this.asField = as;
+    return this;
+  }
+
+  /**
+   * Works on fields of type Number
+   */
+  abs(): SelectObject<DataType.Number> {
+    if (!testFieldImpl(this.fieldObj, DataType.Number)) {
+      throw new Error("Can only use ABS on Number fields");
+    }
+    this.extraField = null;
+    this.func = SelectFunction.Abs;
     return this;
   }
 
@@ -439,6 +455,9 @@ export class SelectObject<T = DataType> {
     return this;
   }
 
+  /**
+   * Works on fields of type Text
+   */
   lowerCase(): SelectObject<DataType.Text> {
     if (!testFieldImpl(this.fieldObj, DataType.Text)) {
       throw new Error("Can only use LOWER_CASE on Text fields");
@@ -448,12 +467,39 @@ export class SelectObject<T = DataType> {
     return this;
   }
 
+  /**
+   * Works on fields of type Text
+   */
   upperCase(): SelectObject<DataType.Text> {
     if (!testFieldImpl(this.fieldObj, DataType.Text)) {
       throw new Error("Can only use UPPER_CASE on Text fields");
     }
     this.extraField = null;
     this.func = SelectFunction.UpperCase;
+    return this;
+  }
+
+  /**
+   * Works on fields of type Text
+   */
+  length(): SelectObject<DataType.Text> {
+    if (!testFieldImpl(this.fieldObj, DataType.Text)) {
+      throw new Error("Can only use LENGTH on Text fields");
+    }
+    this.extraField = null;
+    this.func = SelectFunction.Length;
+    return this;
+  }
+
+  pad(length: number, pad: string, type: "LEFT" | "RIGHT"): SelectObject<DataType.Text> {
+    if (!testFieldImpl(this.fieldObj, DataType.Text)) {
+      throw new Error("Can only use PAD on Text fields");
+    }
+    if (type !== "LEFT" && type !== "RIGHT") {
+      throw new Error("Type must be either LEFT or RIGHT");
+    }
+    this.extraField = `${length}, '${pad}'`;
+    this.func = type === "LEFT" ? SelectFunction.PadLeft : SelectFunction.PadRight;
     return this;
   }
 

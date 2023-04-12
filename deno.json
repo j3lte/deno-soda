@@ -31,7 +31,7 @@
     },
     "files": {
       "exclude": [
-        "./local_test.ts",
+        "./_local_testing.ts",
         "./.coverage/**/*"
       ]
     }
