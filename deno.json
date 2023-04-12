@@ -3,7 +3,7 @@
     "format": "deno fmt ./src/ ./test/",
     "lint": "deno lint ./src/ ./test/",
     "test": "deno test --coverage=.coverage",
-    "coverage": "deno coverage .coverage --lcov > ./.coverage/coverage.lcov",
+    "coverage": "deno coverage .coverage --lcov --exclude=/test/ > ./.coverage/coverage.lcov",
     "test:watch": "deno test --watch",
     "clean": "rm -r ./coverage",
     "localTest": "deno run --allow-read --allow-write --allow-run ./runTest.ts"
