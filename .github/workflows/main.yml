@@ -18,4 +18,6 @@ jobs:
             - name: Lint
               run: deno lint
             - name: Tests
-              run: deno test
+              run: deno task test
+            - name: Coverage
+              run: deno task coverage
