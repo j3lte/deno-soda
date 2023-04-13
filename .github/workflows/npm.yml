@@ -30,6 +30,6 @@ jobs:
         run: cat ./npm/package.json | jq .version
 
       - name: Publish to NPM
-        run: cd ./npm && yarn publish --verbose --access public --tag ${{ github.event.inputs.version }}
+        run: cd ./npm && yarn publish --verbose --access public --new-version ${{ github.event.inputs.version }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
