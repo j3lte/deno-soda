@@ -6,7 +6,8 @@
     "coverage": "deno coverage .coverage --lcov --exclude=/test/,/scripts/ > ./.coverage/coverage.lcov",
     "test:watch": "deno test --watch",
     "clean": "rm -r ./coverage",
-    "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts"
+    "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
+    "npm": "deno run -A ./scripts/build-npm.ts"
   },
   "fmt": {
     "options": {
@@ -18,7 +19,9 @@
     },
     "files": {
       "exclude": [
-        "./.coverage/**/*"
+        ".coverage/",
+        "npm/",
+        ".github/"
       ]
     }
   },
@@ -31,19 +34,17 @@
     },
     "files": {
       "exclude": [
-        "./_local_testing.ts",
-        "./.coverage/**/*",
-        "./github/**/*"
+        "npm/"
       ]
     }
   },
   "test": {
     "files": {
       "exclude": [
-        "./_local_testing.ts",
-        "./.coverage/**/*",
-        "./test/**/*",
-        "./github/**/*"
+        ".coverage/",
+        "test/",
+        "github/",
+        "npm/"
       ]
     }
   }
