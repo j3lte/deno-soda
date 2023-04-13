@@ -7,24 +7,24 @@ on:
         required: true
 
 jobs:
-    release:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-            - name: Setup Deno
-              uses: denoland/setup-deno@v1
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
 
-            - name: Setup Node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18.x
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
 
-            - name: Run Deno dnt
-              run: deno task npm $RELEASE_VERSION
+      - name: Run Deno dnt
+        run: deno task npm $RELEASE_VERSION
 
-            - name: Publish to NPM
-              run: yarn publish --cwd ./npm --verbose --access public --tag $RELEASE_VERSION
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
+      - name: Publish to NPM
+        run: yarn publish --cwd ./npm --verbose --access public --tag $RELEASE_VERSION
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
