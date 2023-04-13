@@ -2,7 +2,7 @@ name: Build NPM package (On Demand)
 on:
   workflow_dispatch:
     inputs:
-      release-version:
+      version:
         description: "Release version (x.y.z):"
         required: true
 
@@ -24,7 +24,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Run Deno dnt
-        run: deno task npm $RELEASE_VERSION
+        run: deno task npm ${{ github.event.inputs.version }}
 
       - name: Check Version
         run: cat ./npm/package.json | jq .version
