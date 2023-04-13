@@ -9,13 +9,9 @@ import {
   SelectRegrSlope,
 } from "../src/Select.ts";
 import { DataType } from "../src/types.ts";
-import type { Field } from "../src/types.ts";
+import { Field } from "../src/Field.ts";
 
-const createField = <T>(type: T, name = "test"): Field<T> =>
-  ({
-    name,
-    type,
-  }) as const;
+const createField = <T extends DataType>(type: T, name = "test") => Field(name, type);
 
 Deno.test("Select (empty)", () => {
   const select = Select();

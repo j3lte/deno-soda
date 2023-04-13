@@ -1,10 +1,10 @@
 // TODO(@j3lte) - Fix the 'any' types in this file
 // deno-lint-ignore-file no-explicit-any
 
-import type { Field, FieldImpl } from "./types.ts";
+import type { FieldImpl } from "./types.ts";
 
 import { replaceParams, SupportTypeElement } from "./utils/param.ts";
-import { getFieldName } from "./Field.ts";
+import { FieldObject, getFieldName } from "./Field.ts";
 import { DataType } from "./types.ts";
 
 type BasicType = Exclude<SupportTypeElement, null | undefined | boolean>;
@@ -123,10 +123,10 @@ export class Where {
   static between(
     field:
       | string
-      | Field<DataType.Number>
-      | Field<DataType.FloatingTimestamp>
-      | Field<DataType.FixedTimestamp>
-      | Field<DataType.Text>,
+      | FieldObject<DataType.Number>
+      | FieldObject<DataType.FloatingTimestamp>
+      | FieldObject<DataType.FixedTimestamp>
+      | FieldObject<DataType.Text>,
     startValue: any,
     endValue: any,
   ): Where {
@@ -141,10 +141,10 @@ export class Where {
   static notBetween(
     field:
       | string
-      | Field<DataType.Number>
-      | Field<DataType.FloatingTimestamp>
-      | Field<DataType.FixedTimestamp>
-      | Field<DataType.Text>,
+      | FieldObject<DataType.Number>
+      | FieldObject<DataType.FloatingTimestamp>
+      | FieldObject<DataType.FixedTimestamp>
+      | FieldObject<DataType.Text>,
     startValue: any,
     endValue: any,
   ): Where {
@@ -214,7 +214,7 @@ export class Where {
    * @param lonSE The longitude of the southeast corner of the box
    */
   static withinBox(
-    field: string | Field<DataType.Location>,
+    field: string | FieldObject<DataType.Location>,
     latNW: number,
     lonNW: number,
     latSE: number,
@@ -238,7 +238,7 @@ export class Where {
    * @param radius The radius of the circle in meters
    */
   static withinCircle(
-    field: string | Field<DataType.Location>,
+    field: string | FieldObject<DataType.Location>,
     lat: number,
     lon: number,
     radius: number,
@@ -257,7 +257,7 @@ export class Where {
    * @param field The field to search
    * @param value The value to search for
    */
-  static startsWith(field: string | Field<DataType.Text>, value: string): Where {
+  static startsWith(field: string | FieldObject<DataType.Text>, value: string): Where {
     return this.expr("starts_with(??, ?)", getFieldName(field), value);
   }
 
@@ -274,12 +274,12 @@ export class Where {
   static intersects(
     field:
       | string
-      | Field<DataType.Point>
-      | Field<DataType.Polygon>
-      | Field<DataType.Line>
-      | Field<DataType.MultiPoint>
-      | Field<DataType.MultiLine>
-      | Field<DataType.MultiPolygon>,
+      | FieldObject<DataType.Point>
+      | FieldObject<DataType.Polygon>
+      | FieldObject<DataType.Line>
+      | FieldObject<DataType.MultiPoint>
+      | FieldObject<DataType.MultiLine>
+      | FieldObject<DataType.MultiPolygon>,
     value: string,
   ): Where {
     return this.expr("intersects(??, ?)", getFieldName(field), value);

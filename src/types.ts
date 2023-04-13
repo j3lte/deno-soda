@@ -1,3 +1,4 @@
+import { FieldObject } from "./Field.ts";
 /**
  * The different types of data that can be used in a field
  */
@@ -33,6 +34,8 @@ export enum DataType {
   /** Type: **Unknown** */
   _Unknown = "_unknown",
 }
+
+export type FieldImpl = FieldObject<DataType>;
 
 export interface Options {
   /** Strict mode. If enabled, this prevents the Query from changing the dataset ID after it has been set once */
@@ -83,27 +86,27 @@ export interface AuthOpts {
   accessToken?: string;
 }
 
-export type Field<T> = {
-  name: string;
-  type: T;
-};
+// export type Field<T> = {
+//   name: string;
+//   type: T;
+// };
 
-export type FieldImpl =
-  | Field<DataType.Checkbox>
-  | Field<DataType.FixedTimestamp>
-  | Field<DataType.FloatingTimestamp>
-  | Field<DataType.Line>
-  | Field<DataType.Location>
-  | Field<DataType.MultiLine>
-  | Field<DataType.MultiPoint>
-  | Field<DataType.MultiPolygon>
-  | Field<DataType.Number>
-  | Field<DataType.Point>
-  | Field<DataType.Polygon>
-  | Field<DataType.Text>
-  | Field<DataType.URL>
-  | Field<DataType.RowIdentifier>
-  | Field<DataType._Unknown>;
+// export type FieldImpl =
+//   | Field<DataType.Checkbox>
+//   | Field<DataType.FixedTimestamp>
+//   | Field<DataType.FloatingTimestamp>
+//   | Field<DataType.Line>
+//   | Field<DataType.Location>
+//   | Field<DataType.MultiLine>
+//   | Field<DataType.MultiPoint>
+//   | Field<DataType.MultiPolygon>
+//   | Field<DataType.Number>
+//   | Field<DataType.Point>
+//   | Field<DataType.Polygon>
+//   | Field<DataType.Text>
+//   | Field<DataType.URL>
+//   | Field<DataType.RowIdentifier>
+//   | Field<DataType._Unknown>;
 
 export type QueryObj = Record<string, string | number | boolean>;
 export type DataResponse<T> = Promise<{ error: Error | null; status: number; data: T }>;

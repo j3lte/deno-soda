@@ -1,4 +1,4 @@
-export type { AuthOpts, DataResponse, Field, FieldImpl, Options, QueryObj } from "./types.ts";
+export type { AuthOpts, DataResponse, FieldImpl, Options, QueryObj } from "./types.ts";
 export { DataType } from "./types.ts";
 
 export { createQueryWithDataset, SodaQuery } from "./Query.ts";
@@ -20,4 +20,4 @@ export { Order } from "./Order.ts";
 
 export { expr } from "./utils/expr.ts";
 
-export { SystemFields } from "./Field.ts";
+export { Field, FieldObject, SystemFields } from "./Field.ts";

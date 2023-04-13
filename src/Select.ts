@@ -1,7 +1,7 @@
-import type { Field, FieldImpl } from "./types.ts";
+import type { FieldImpl } from "./types.ts";
 import { DataType } from "./types.ts";
 
-import { getFieldName, testFieldImpl } from "./Field.ts";
+import { FieldObject, getFieldName, testFieldImpl } from "./Field.ts";
 import { SelectFunction, SelectImpl } from "./SelectImpl.ts";
 
 /**
@@ -38,7 +38,10 @@ function SelectMultipleFunc(
  */
 export function SelectGreatest(
   ...fields: Array<
-    string | Field<DataType.Text> | Field<DataType.Number> | Field<DataType.FloatingTimestamp>
+    | string
+    | FieldObject<DataType.Text>
+    | FieldObject<DataType.Number>
+    | FieldObject<DataType.FloatingTimestamp>
   >
 ): SelectImpl {
   return SelectMultipleFunc(
@@ -56,7 +59,10 @@ export function SelectGreatest(
  */
 export function SelectLeast(
   ...fields: Array<
-    string | Field<DataType.Text> | Field<DataType.Number> | Field<DataType.FloatingTimestamp>
+    | string
+    | FieldObject<DataType.Text>
+    | FieldObject<DataType.Number>
+    | FieldObject<DataType.FloatingTimestamp>
   >
 ): SelectImpl {
   return SelectMultipleFunc(
@@ -73,8 +79,8 @@ export function SelectLeast(
  * Docs: https://dev.socrata.com/docs/functions/regr_intercept.html
  */
 export function SelectRegrIntercept(
-  xField: string | Field<DataType.Number>,
-  yField: string | Field<DataType.Number>,
+  xField: string | FieldObject<DataType.Number>,
+  yField: string | FieldObject<DataType.Number>,
 ): SelectImpl {
   return SelectMultipleFunc(
     SelectFunction.RegrIntercept,
@@ -91,8 +97,8 @@ export function SelectRegrIntercept(
  * Docs: https://dev.socrata.com/docs/functions/regr_r2.html
  */
 export function SelectRegrR2(
-  xField: string | Field<DataType.Number>,
-  yField: string | Field<DataType.Number>,
+  xField: string | FieldObject<DataType.Number>,
+  yField: string | FieldObject<DataType.Number>,
 ): SelectImpl {
   return SelectMultipleFunc(
     SelectFunction.RegrR2,
@@ -109,8 +115,8 @@ export function SelectRegrR2(
  * Docs: https://dev.socrata.com/docs/functions/regr_slope.html
  */
 export function SelectRegrSlope(
-  xField: string | Field<DataType.Number>,
-  yField: string | Field<DataType.Number>,
+  xField: string | FieldObject<DataType.Number>,
+  yField: string | FieldObject<DataType.Number>,
 ): SelectImpl {
   return SelectMultipleFunc(
     SelectFunction.RegrSlope,
@@ -124,7 +130,7 @@ export function SelectRegrSlope(
 function Select(): SelectImpl<DataType._Unknown>;
 function Select<T extends string>(field: T): SelectImpl<DataType._Unknown>;
 function Select<T extends FieldImpl>(field: T): SelectImpl<T["type"]>;
-function Select<T extends DataType>(field: Field<T>): SelectImpl<T>;
+function Select<T extends DataType>(field: FieldObject<T>): SelectImpl<T>;
 function Select(field?: string | FieldImpl): SelectImpl<DataType._Unknown> {
   return new SelectImpl(field);
 }
