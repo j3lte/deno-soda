@@ -136,7 +136,7 @@ Select("column_name").avg();
 Select("column_name").sum();
 ```
 
-See all methods in [`<SelectObject>`](https://deno.land/x/soda/mod.ts?s=SelectObject) interface.
+See all methods in [`<SelectImpl>`](https://deno.land/x/soda/mod.ts?s=SelectImpl) interface.
 
 ### Where
 
