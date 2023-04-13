@@ -63,8 +63,8 @@ await build({
   },
   async postBuild(): Promise<void> {
     // steps to run after building and before running the tests
-    await Deno.copyFile("LICENSE", "npm/LICENSE");
-    await Deno.copyFile("README.md", "npm/README.md");
+    await Deno.copyFile("./LICENSE", "npm/LICENSE");
+    await Deno.copyFile("./README.md", "npm/README.md");
     await cleanupTypes("./npm/types");
   },
 });

@@ -10,7 +10,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/j3lte/deno-soda?style=for-the-badge&token=F9CAI1FCMX)](https://codecov.io/gh/j3lte/deno-soda "Codecov")
 [![Deno docs](https://img.shields.io/badge/Deno-Docs-blue?style=for-the-badge)](https://doc.deno.land/https/deno.land/x/soda/mod.ts "Deno docs")
 
-SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
+SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
 
 ## Table of Contents
 
@@ -39,8 +39,16 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno.
 
 ## Installation
 
+Deno:
+
 ```ts
 import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
+```
+
+Node: (`npm i soda-query`)
+
+```ts
+import { SodaQuery } from "soda-query";
 ```
 
 ## Example
