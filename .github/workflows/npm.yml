@@ -27,4 +27,4 @@ jobs:
             - name: Publish to NPM
               run: yarn publish --cwd ./npm --verbose --access public --tag $RELEASE_VERSION
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
