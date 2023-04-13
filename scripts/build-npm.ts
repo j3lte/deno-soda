@@ -33,7 +33,7 @@ await build({
   },
   package: {
     // package.json properties
-    name: "sodaquery",
+    name: "soda-query",
     version: Deno.args[0] || "1.0.0",
     description: "SodaQuery: A JavaScript client for Socrata Open Data APIs",
     license: "MIT",
