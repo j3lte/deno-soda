@@ -24,8 +24,7 @@ jobs:
             - name: Run Deno dnt
               run: deno task npm $RELEASE_VERSION
 
-
-            # - name: Publish to NPM
-            #   run: npm publish
-            #   env:
-            #       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Publish to NPM
+              run: yarn publish --cwd ./npm --verbose --access public --tag $RELEASE_VERSION
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
