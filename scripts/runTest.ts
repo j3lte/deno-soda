@@ -1,4 +1,4 @@
-import { emptyDir } from "./dev_deps.ts";
+import { emptyDir } from "../dev_deps.ts";
 
 const watcher = Deno.watchFs([
   "./src/",
@@ -40,7 +40,7 @@ const runTest = (path: string) => {
       "coverage",
       "./.coverage/",
       "--lcov",
-      "--exclude=/test/",
+      "--exclude=/test|scripts/",
     ]);
     await Deno.writeTextFile("./.coverage/coverageFile.lcov", cov.output);
 

@@ -1,16 +1,24 @@
 import { Where } from "../Where.ts";
 
-const isNumber = (obj: string) => !isNaN(parseFloat(obj));
+// function isNumber(obj: string): boolean {
+//   return !Number.isNaN(parseFloat(obj));
+// }
 
 type Literal = string | number;
 
-export const handleLiteral = (
-  literal: Literal,
-): Literal => (typeof literal === "string"
-  ? `'${literal}'`
-  : (isNumber(literal.toString()) ? literal : literal));
+export function handleLiteral(literal: Literal): Literal {
+  if (typeof literal === "string") {
+    return `'${literal}'`;
+    // } else if (isNumber(literal.toString())) {
+    //   return literal;
+  }
+  return literal;
+}
 
-export const addExpr = (target: string[], args: Array<string | Record<string, string> | Where>) => {
+export function addExpr(
+  target: string[],
+  args: Array<string | Record<string, string> | Where>,
+): void {
   args.forEach((arg) => {
     if (arg instanceof Where) {
       target.push(arg.value);
@@ -22,12 +30,16 @@ export const addExpr = (target: string[], args: Array<string | Record<string, st
       });
     }
   });
-};
+}
 
-export const expr: {
-  and: (...clauses: string[]) => string;
-  or: (...clauses: string[]) => string;
-} = {
-  and: (...clauses: string[]) => clauses.map((clause) => `(${clause})`).join(" and "),
-  or: (...clauses: string[]) => clauses.map((clause) => `(${clause})`).join(" or "),
+function and(...classes: string[]): string {
+  return classes.map((c) => `(${c})`).join(" and ");
+}
+function or(...classes: string[]): string {
+  return classes.map((c) => `(${c})`).join(" or ");
+}
+
+export const expr = {
+  and,
+  or,
 };
