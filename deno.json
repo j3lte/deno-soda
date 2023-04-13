@@ -32,7 +32,8 @@
     "files": {
       "exclude": [
         "./_local_testing.ts",
-        "./.coverage/**/*"
+        "./.coverage/**/*",
+        "./github/**/*"
       ]
     }
   },
@@ -41,7 +42,8 @@
       "exclude": [
         "./_local_testing.ts",
         "./.coverage/**/*",
-        "./test/**/*"
+        "./test/**/*",
+        "./github/**/*"
       ]
     }
   }

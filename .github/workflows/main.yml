@@ -1,31 +1,47 @@
 name: Deno CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    test:
-        name: Test
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Setup Deno
-              uses: denoland/setup-deno@v1
-            - name: Lint
-              run: deno lint
-            - name: Tests
-              run: deno task test
-            - name: Coverage
-              run: deno task coverage
-            - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@v3
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  file: ./.coverage/coverage.lcov
-                  flags: unittests
-                  name: codecov-umbrella
-                  fail_ci_if_error: true
+  test:
+    name: tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+      fail-fast: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+
+      - name: Check format
+        if: matrix.os == 'ubuntu-latest'
+        run: deno fmt --check
+
+      - name: Check linting
+        if: matrix.os == 'ubuntu-latest'
+        run: deno lint
+
+      - name: Tests
+        run: deno task test
+
+      - name: Coverage
+        if: matrix.os == 'ubuntu-latest'
+        run: deno task coverage
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./.coverage/coverage.lcov
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
