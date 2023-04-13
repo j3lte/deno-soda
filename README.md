@@ -1,6 +1,7 @@
 # SODA Query
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/releases/latest "GitHub release (latest by date)")
+[![NPM Version](https://img.shields.io/npm/v/soda-query?style=for-the-badge)](https://www.npmjs.com/package/soda-query "NPM Version")
 [![GitHub Release Date](https://img.shields.io/github/release-date/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/releases/latest "GitHub Release Date")
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/j3lte/deno-soda?style=for-the-badge)
 [![GitHub](https://img.shields.io/github/license/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/blob/main/LICENSE "GitHub License")
