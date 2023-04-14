@@ -228,8 +228,6 @@ import { Select, SodaQuery, Field, Where } from "https://deno.land/x/soda/mod.ts
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 
-const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
-
 // This works fine
 query.select(
   Select(Field("column_name", DataType.Text)).as("alias"),
