@@ -11,7 +11,7 @@ assignees: j3lte
 A clear and concise description of what the bug is.
 
 **Runtime info:**
- - [ ] Deno
+- [ ] Deno
 - [ ] Node
  - OS: [e.g. iOS]
  - Version [e.g. 22]
