@@ -3,6 +3,8 @@ import { mockFetch, unMockFetch } from "./util.ts";
 import { createQueryWithDataset, SodaQuery } from "../src/Query.ts";
 import { Order } from "../src/Order.ts";
 import { Where } from "../src/Where.ts";
+import { Select } from "../src/Select.ts";
+import { Field } from "../src/Field.ts";
 import type { AuthOpts } from "../src/types.ts";
 
 const createSampleQuery = <T>(authOpts?: AuthOpts) =>
@@ -66,8 +68,12 @@ Deno.test("SodaQuery QueryObj", () => {
   query.search("test");
   assertEquals(query.buildQuery().q, "test");
 
-  query.select("field1");
-  assertEquals(query.buildQuery().$select, "field1");
+  query.select(
+    "field1",
+    Select("field2"),
+    Field("field3"),
+  );
+  assertEquals(query.buildQuery().$select, "field1,field2,field3");
 
   query.limit(10);
   assertEquals(query.buildQuery().$limit, "10");
@@ -80,6 +86,15 @@ Deno.test("SodaQuery QueryObj", () => {
 
   query.orderBy(Order.by("field2").desc);
   assertEquals(query.buildQuery().$order, "field1 ASC, field2 DESC");
+
+  query.orderBy("field3");
+  assertEquals(query.buildQuery().$order, "field1 ASC, field2 DESC, field3 ASC");
+
+  query.orderBy("field4 DESC");
+  assertEquals(
+    query.buildQuery().$order,
+    "field1 ASC, field2 DESC, field3 ASC, field4 DESC",
+  );
 
   assertThrows(
     () => query.having(Where.gt("field1", 1)).buildQuery(),
