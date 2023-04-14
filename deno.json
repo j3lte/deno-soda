@@ -21,7 +21,8 @@
       "exclude": [
         ".coverage/",
         "npm/",
-        ".github/"
+        ".github/",
+        "README.md"
       ]
     }
   },

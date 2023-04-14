@@ -26,6 +26,9 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
   - [Querying data](#querying-data)
     - [Select](#select)
     - [Where](#where)
+    - [Field](#field)
+    - [Order](#order)
+    - [Group](#group)
   - [Development](#development)
   - [License](#license)
 
@@ -179,6 +182,97 @@ Where.and(
 ```
 
 See all methods in [`<Where>`](https://deno.land/x/soda/mod.ts?s=Where) interface.
+
+### Field
+
+You can use the `Field` method that returns a `FieldImpl` object, which can be used to ensure type safety when using the `Select` and `Where` methods.
+
+It uses the `DataType` enum to tell what type of data the field is.
+
+DataTypes:
+
+| DataType | String representation | Socrata Type | Notes |
+| --- | --- | --- | --- |
+| `Checkbox` | `"checkbox"` | [Checkbox](https://dev.socrata.com/docs/datatypes/checkbox.html) | |
+| `FixedTimestamp` | `"fixed_timestamp"` | [Fixed Timestamp](https://dev.socrata.com/docs/datatypes/fixed_timestamp.html) | |
+| `FloatingTimestamp` | `"floating_timestamp"` | [Floating Timestamp](https://dev.socrata.com/docs/datatypes/floating_timestamp.html) | |
+| `Line` | `"line"` | [Line](https://dev.socrata.com/docs/datatypes/line.html) | |
+| `Location` | `"location"` | [Location](https://dev.socrata.com/docs/datatypes/location.html) | |
+| `MultiLine` | `"multiline"` | [MultiLine](https://dev.socrata.com/docs/datatypes/multiline.html) | |
+| `MultiPoint` | `"multipoint"` | [MultiPoint](https://dev.socrata.com/docs/datatypes/mulitpoint.html) | |
+| `MultiPolygon` | `"multipolygon"` | [MultiPolygon](https://dev.socrata.com/docs/datatypes/multipolygon.html) | |
+| `Number` | `"number"` | [Number](https://dev.socrata.com/docs/datatypes/number.html) | |
+| `Point` | `"point"` | [Point](https://dev.socrata.com/docs/datatypes/point.html) | |
+| `Polygon` | `"polygon"` | [Polygon](https://dev.socrata.com/docs/datatypes/polygon.html) | |
+| `Text` | `"text"` | [Text](https://dev.socrata.com/docs/datatypes/text.html) | |
+| `URL` | `"url"` | [URL](https://dev.socrata.com/docs/datatypes/url.html) | |
+| `ROWIdentifier` | `"row_identifier"` | - | _Special tag that is only used internally, for the ':id' column._ |
+| `Unknown` | `"_unknown"` | - | _Default type for a field, does not check types_ |
+
+These Datatypes can be used to define your fields:
+
+```ts
+import { Field, DataType } from "https://deno.land/x/soda/mod.ts";
+
+// Just a field, will be of type FieldImpl<DataType.Unknown>
+const field = Field("column_name");
+
+// Field with type
+const field = Field("column_name", DataType.Text);
+```
+
+If you define your fields like that instead of using strings, you can use the `Select` and `Where` methods with type safety:
+
+```ts
+import { Select, SodaQuery, Field, Where } from "https://deno.land/x/soda/mod.ts";
+
+const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
+
+const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
+
+// This works fine
+query.select(
+  Select(Field("column_name", DataType.Text)).as("alias"),
+);
+
+// This will throw an error, as you cannot use `avg` on a text field
+query.select(
+  Select(Field("column_name", DataType.Text)).avg(),
+);
+```
+
+### Order
+
+A `Order` object can be used to order the data returned by the query.
+
+```ts
+import { Order, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+
+const query = new SodaQuery("...");
+
+// Ordering data
+query.order(
+  Order.by("column_name").asc(),
+  Order.by("column_name2").desc(),
+);
+```
+
+### Group
+
+You can use `groupBy` to group the data returned by the query.
+
+```ts
+query.groupBy(
+  "column_name",
+  "column_name2",
+);
+
+// Or with Fields
+query.groupBy(
+  Field("column_name", DataType.Text),
+  Field("column_name2", DataType.Number),
+);
+```
 
 ## Development
 
