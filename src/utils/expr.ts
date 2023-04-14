@@ -1,16 +1,10 @@
 import { Where } from "../Where.ts";
 
-// function isNumber(obj: string): boolean {
-//   return !Number.isNaN(parseFloat(obj));
-// }
-
 type Literal = string | number;
 
 export function handleLiteral(literal: Literal): Literal {
   if (typeof literal === "string") {
     return `'${literal}'`;
-    // } else if (isNumber(literal.toString())) {
-    //   return literal;
   }
   return literal;
 }
