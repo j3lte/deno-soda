@@ -288,9 +288,7 @@ export class SodaQuery<T> {
   select(...selects: Array<string | SelectImpl | FieldImpl>): this {
     const selectArray = selects.map((
       s,
-    ) => (s instanceof SelectImpl ? s.value : (typeof s === "object" ? s.name : s))).filter((s) =>
-      s
-    );
+    ) => (s instanceof SelectImpl ? s.value : s.toString())).filter((s) => s);
     this.#select.push(...selectArray);
     return this;
   }
@@ -305,8 +303,9 @@ export class SodaQuery<T> {
     return this;
   }
 
-  groupBy(...group: string[]): this {
-    this.#group.push(...group);
+  groupBy(...group: Array<string | FieldImpl>): this {
+    const groupArray = group.map((g) => g.toString());
+    this.#group.push(...groupArray);
     return this;
   }
 
