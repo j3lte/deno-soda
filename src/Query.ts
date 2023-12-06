@@ -384,6 +384,24 @@ export class SodaQuery<T> {
     }));
   }
 
+  single(
+    queryID?: string,
+    signal?: AbortSignal,
+  ): DataResponse<T & ExtraDataFields> {
+    const currentLimit = this.#limit;
+    this.#limit = 1;
+    return this.execute(queryID, signal).then((res) => {
+      this.#limit = currentLimit;
+      return {
+        ...res,
+        data: res.data?.[0] ?? null,
+      };
+    }).catch((err) => {
+      this.#limit = currentLimit;
+      return Promise.reject(err);
+    });
+  }
+
   executeGeoJSON(
     queryID?: string,
     signal?: AbortSignal,

@@ -114,21 +114,40 @@ Deno.test("SodaQuery QueryObj", () => {
 Deno.test("SodaQuery (request)", async () => {
   const query = createSampleQuery<{ test: number }>();
 
+  const res = new Response(JSON.stringify([{ test: 1 }]), {
+    status: 200,
+    headers: {
+      "Last-Modified": "Mon, 01 Jan 2001 00:00:00 GMT",
+      "ETag": "test",
+    },
+  });
+
   await mockFetch(
     createRequest(),
-    new Response(JSON.stringify([{ test: 1 }]), {
-      status: 200,
-      headers: {
-        "Last-Modified": "Mon, 01 Jan 2001 00:00:00 GMT",
-        "ETag": "test",
-      },
-    }),
+    res,
+  );
+  await mockFetch(
+    createRequest("https://test.example.com/resource/test.json?$limit=1"),
+    res,
   );
 
   const d = await query.execute();
+  const single = await query.single();
   assertEquals(d.data[0]?.test, 1);
+  assertEquals(single.data.test, 1);
   assertEquals(query.headers.lastModified, "Mon, 01 Jan 2001 00:00:00 GMT");
   assertEquals(query.headers.etag, "test");
+
+  const emptyQuery = createSampleQuery<{ test: number }>();
+  await mockFetch(
+    createRequest("https://test.example.com/resource/test.json?$limit=1"),
+    new Response(JSON.stringify([]), {
+      status: 200,
+    }),
+  );
+
+  const emptySingle = await emptyQuery.single();
+  assertEquals(emptySingle.data, null);
 
   // With Access Token
   const query2 = createSampleQuery<{ test: number }>({
