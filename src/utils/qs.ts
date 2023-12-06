@@ -6,7 +6,6 @@ type Options = {
   prefix?: string;
 };
 
-// deno-lint-ignore ban-types
 export type Param = string | number | boolean | object | Array<Param>;
 export type Params = Array<Param> | Record<string, Param>;
 

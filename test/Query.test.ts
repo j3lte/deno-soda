@@ -208,6 +208,7 @@ Deno.test("SodaQuery (request)", async () => {
   const geojsonEmpty = await query6.executeGeoJSON();
   assertEquals(geojsonEmpty.error, null);
   assertNotEquals(geojsonEmpty.data, null);
+  // deno-lint-ignore no-explicit-any
   assertEquals((geojsonEmpty.data as any).features.length, 0);
 
   await mockFetch(
