@@ -74,7 +74,8 @@ export class SelectImpl<T = DataType> {
   }
 
   get fieldName(): string {
-    return this.field ?? this.fieldObj?.name ?? "*";
+    // this.field is only null when fieldObj is not null
+    return this.field ?? this.fieldObj!.name;
   }
 
   get value(): string {

@@ -10,6 +10,7 @@ import {
 } from "../src/Select.ts";
 import { DataType } from "../src/types.ts";
 import { Field } from "../src/Field.ts";
+import { SelectFunction } from "../src/SelectImpl.ts";
 
 const createField = <T extends DataType>(type: T, name = "test") => Field(name, type);
 
@@ -22,8 +23,24 @@ Deno.test("Select (empty)", () => {
 });
 
 Deno.test("Select (error)", () => {
-  // @ts-ignore: This is a pure test, wouldn't fly in Typescript, but we got to test it for Javascript
+  // @ts-expect-error - This is a pure test, wouldn't fly in Typescript, but we got to test it for Javascript
   assertThrows(() => Select(1));
+});
+
+Deno.test("Select (setFunc)", () => {
+  const select = Select("test");
+
+  select.setFunc(SelectFunction.Log, "test");
+
+  assertEquals(select.fieldName, "test");
+  assertEquals(select.value, "ln(test, test)");
+  assertEquals(select.toString(), "ln(test, test)");
+
+  select.setFunc(SelectFunction.Log);
+
+  assertEquals(select.fieldName, "test");
+  assertEquals(select.value, "ln(test)");
+  assertEquals(select.toString(), "ln(test)");
 });
 
 Deno.test("Select (basic string field)", () => {
@@ -44,6 +61,7 @@ Deno.test("Select (Field obj)", () => {
 
 Deno.test("Select (count)", () => {
   const select = Select(createField(DataType.Number)).count();
+  assertEquals(select.fieldName, "test");
   assertEquals(select.value, "count(test)");
 });
 
@@ -144,6 +162,9 @@ Deno.test("Select (Text functions", () => {
 
   assertEquals(createSelect().pad(1, "a", "RIGHT").value, "pad_right(test, 1, 'a')");
   assertThrows(() => createSelect(DataType.Number).pad(1, "a", "RIGHT"));
+
+  // @ts-expect-error - testing invalid types
+  assertThrows(() => createSelect().pad(1, "a", "CENTER"));
 });
 
 Deno.test("Select (Spatial functions)", () => {

@@ -61,6 +61,12 @@ Deno.test("Utils::params::replaceParams", () => {
 
 Deno.test("Utils::qs::toQS", () => {
   assertEquals(toQS({ test: "test" }), "test=test");
+  assertEquals(toQS([{ test: "test" }, { test2: "test2" }]), "0[test]=test&1[test2]=test2");
+  assertEquals(
+    toQS([{ test: "test" }, { test2: { "test1": "test1" } }]),
+    "0[test]=test&1[test2][test1]=test1",
+  );
+  assertEquals(toQS({ test: "test" }), "test=test");
   assertEquals(toQS({ test: "test", test2: "test3" }), "test=test&test2=test3");
   assertEquals(toQS({ test: "test", test2: "test3", test3: 1 }), "test=test&test2=test3&test3=1");
   assertEquals(
