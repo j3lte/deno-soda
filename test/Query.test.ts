@@ -195,6 +195,21 @@ Deno.test("SodaQuery (request)", async () => {
   assertEquals(geojson.error, null);
   assertNotEquals(geojson.data, null);
 
+  // GeoJSON
+  const query6 = createSampleQuery<{ test: number }>();
+  const reqEmpty = createRequest("https://test.example.com/resource/test.geojson");
+  await mockFetch(
+    reqEmpty,
+    new Response(JSON.stringify(null), {
+      status: 200,
+    }),
+  );
+
+  const geojsonEmpty = await query6.executeGeoJSON();
+  assertEquals(geojsonEmpty.error, null);
+  assertNotEquals(geojsonEmpty.data, null);
+  assertEquals((geojsonEmpty.data as any).features.length, 0);
+
   await mockFetch(
     createRequest("https://test.example.com/api/views/test"),
     new Response(JSON.stringify({}), {
