@@ -44,6 +44,7 @@ export interface Options {
 
 export interface RequesOpts {
   method?: string;
+  signal?: AbortSignal;
 }
 
 export interface ExtraDataFields {

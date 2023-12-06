@@ -374,8 +374,11 @@ export class SodaQuery<T> {
 
   execute(
     queryID?: string,
+    signal?: AbortSignal,
   ): DataResponse<Array<T & ExtraDataFields>> {
-    return this.requestData<Array<T & ExtraDataFields>>(this.getURL(queryID)).then((res) => ({
+    return this.requestData<Array<T & ExtraDataFields>>(this.getURL(queryID), { signal }).then((
+      res,
+    ) => ({
       ...res,
       data: res.data ?? [],
     }));
@@ -383,17 +386,18 @@ export class SodaQuery<T> {
 
   executeGeoJSON(
     queryID?: string,
+    signal?: AbortSignal,
   ): DataResponse<unknown> {
     const url = this.getURL(queryID).replace(/\.json/, ".geojson");
-    return this.requestData<unknown>(url).then((res) => ({
+    return this.requestData<unknown>(url, { signal }).then((res) => ({
       ...res,
       data: res.data ?? { type: "FeatureCollection", features: [] },
     }));
   }
 
-  getMetaData(): DataResponse<unknown> {
+  getMetaData(signal?: AbortSignal): DataResponse<unknown> {
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
-    return this.requestData(url);
+    return this.requestData(url, { signal });
   }
 }
 
