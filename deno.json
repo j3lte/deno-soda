@@ -1,50 +1,44 @@
 {
-  "tasks": {
-    "format": "deno fmt ./src/ ./test/",
-    "lint": "deno lint ./src/ ./test/",
-    "test": "deno test --coverage=.coverage",
-    "coverage": "deno coverage .coverage --lcov --exclude=/test/ --exclude=/scripts/ > ./.coverage/coverage.lcov",
-    "test:watch": "deno test --watch",
-    "clean": "rm -r ./coverage",
-    "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
-    "npm": "deno run -A ./scripts/build-npm.ts"
-  },
-  "fmt": {
-    "options": {
-      "indentWidth": 2,
-      "lineWidth": 100,
-      "singleQuote": false,
-      "useTabs": false,
-      "proseWrap": "preserve"
+    "tasks": {
+        "format": "deno fmt ./src/ ./test/",
+        "lint": "deno lint ./src/ ./test/",
+        "test": "deno test --coverage=.coverage",
+        "coverage": "deno coverage .coverage --lcov --exclude=/test/ --exclude=/scripts/ > ./.coverage/coverage.lcov",
+        "test:watch": "deno test --watch",
+        "clean": "rm -r ./coverage",
+        "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
+        "npm": "deno run -A ./scripts/build-npm.ts"
     },
-    "files": {
-      "exclude": [
-        ".coverage/",
-        "npm/",
-        ".github/",
-        "README.md"
-      ]
-    }
-  },
-  "lint": {
-    "rules": {
-      "include": [
-        "ban-untagged-todo",
-        "explicit-function-return-type"
-      ]
+    "fmt": {
+        "options": {
+            "indentWidth": 2,
+            "lineWidth": 100,
+            "singleQuote": false,
+            "useTabs": false,
+            "proseWrap": "preserve"
+        },
+        "exclude": [
+            ".coverage/",
+            "npm/",
+            ".github/",
+            "README.md"
+        ]
     },
-    "files": {
-      "exclude": [
-        "npm/"
-      ]
+    "lint": {
+        "rules": {
+            "include": [
+                "ban-untagged-todo",
+                "explicit-function-return-type"
+            ]
+        },
+        "exclude": [
+            "npm/"
+        ]
+    },
+    "test": {
+        "exclude": [
+            "npm/",
+            ".coverage/"
+        ]
     }
-  },
-  "test": {
-    "files": {
-      "exclude": [
-        "npm/",
-        ".coverage/"
-      ]
-    }
-  }
 }
