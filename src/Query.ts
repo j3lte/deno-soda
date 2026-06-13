@@ -66,6 +66,10 @@ export class SodaQuery<T> {
     return `/resource/${this.#datasetId}.json`;
   }
 
+  private resourceUrl(queryObj: QueryObj): string {
+    return `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+  }
+
   private get requestHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -441,7 +445,7 @@ export class SodaQuery<T> {
     queryObj.$limit = 1;
 
     // `$limit=1` is always present, so the query string is never empty.
-    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+    const url = this.resourceUrl(queryObj);
 
     return this.requestData<Array<T & ExtraDataFields>>(url, { signal }).then((res) => ({
       ...res,
@@ -495,7 +499,7 @@ export class SodaQuery<T> {
     const queryObj = this.buildQuery();
     queryObj.$limit = pageSize;
     queryObj.$offset = offset;
-    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+    const url = this.resourceUrl(queryObj);
     const res = await this.requestData<Array<T & ExtraDataFields>>(url, { signal });
     if (res.error) {
       throw res.error;
@@ -600,7 +604,7 @@ export class SodaQuery<T> {
       queryObj.q = base.q;
     }
 
-    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+    const url = this.resourceUrl(queryObj);
     return this.requestData<Array<{ count: string }>>(url, { signal }).then((res) => ({
       ...res,
       data: res.data?.[0]?.count !== undefined ? Number(res.data[0].count) : 0,

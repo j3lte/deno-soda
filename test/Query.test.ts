@@ -365,11 +365,10 @@ Deno.test("SodaQuery orderBy appends ASC to a directionless string", () => {
 
 Deno.test("SodaQuery pages() iterates every page", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using fetchStub = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
-    [`${base}?$limit=2&$offset=2`]: ok([{ test: 3 }, { test: 4 }]),
-    [`${base}?$limit=2&$offset=4`]: ok([{ test: 5 }]),
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }, { test: 4 }]),
+    [`${BASE}?$limit=2&$offset=4`]: ok([{ test: 5 }]),
   });
 
   const pages: number[][] = [];
@@ -382,10 +381,9 @@ Deno.test("SodaQuery pages() iterates every page", async () => {
 
 Deno.test("SodaQuery pages() stops on an empty trailing page", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using _fetch = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
-    [`${base}?$limit=2&$offset=2`]: ok([]),
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([]),
   });
 
   const pages: number[] = [];
@@ -395,8 +393,7 @@ Deno.test("SodaQuery pages() stops on an empty trailing page", async () => {
 
 Deno.test("SodaQuery pages() treats a null body as an empty page", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
-  using _fetch = stubFetch({ [`${base}?$limit=2&$offset=0`]: ok(null) });
+  using _fetch = stubFetch({ [`${BASE}?$limit=2&$offset=0`]: ok(null) });
 
   const pages: number[] = [];
   for await (const page of query.pages({ pageSize: 2 })) pages.push(page.length);
@@ -405,10 +402,9 @@ Deno.test("SodaQuery pages() treats a null body as an empty page", async () => {
 
 Deno.test("SodaQuery rows() yields individual rows", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using _fetch = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
-    [`${base}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
   });
 
   const rows: number[] = [];
@@ -418,9 +414,8 @@ Deno.test("SodaQuery rows() yields individual rows", async () => {
 
 Deno.test("SodaQuery pages() forwards the AbortSignal", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   const controller = new AbortController();
-  using fetchStub = stubFetch({ [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }]) });
+  using fetchStub = stubFetch({ [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }]) });
 
   for await (const _page of query.pages({ pageSize: 2, signal: controller.signal })) { /* drain */ }
 
@@ -430,10 +425,9 @@ Deno.test("SodaQuery pages() forwards the AbortSignal", async () => {
 
 Deno.test("SodaQuery executeAll() collects every row", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using _fetch = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
-    [`${base}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
   });
 
   const res = await query.executeAll({ pageSize: 2 });
@@ -443,9 +437,8 @@ Deno.test("SodaQuery executeAll() collects every row", async () => {
 
 Deno.test("SodaQuery executeAll() respects max", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using _fetch = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
   });
 
   const res = await query.executeAll({ pageSize: 2, max: 1 });
@@ -454,9 +447,8 @@ Deno.test("SodaQuery executeAll() respects max", async () => {
 
 Deno.test("SodaQuery executeAll() returns the error on a failed page", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using _fetch = stubFetch({
-    [`${base}?$limit=2&$offset=0`]: () =>
+    [`${BASE}?$limit=2&$offset=0`]: () =>
       new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
   });
 
@@ -539,9 +531,8 @@ Deno.test("SodaQuery count() keeps the search query (q)", async () => {
 
 Deno.test("SodaQuery pages() uses default pageSize of 1000", async () => {
   const query = createSampleQuery<{ test: number }>();
-  const base = "https://test.example.com/resource/test.json";
   using fetchStub = stubFetch({
-    [`${base}?$limit=1000&$offset=0`]: ok([{ test: 1 }]),
+    [`${BASE}?$limit=1000&$offset=0`]: ok([{ test: 1 }]),
   });
 
   const pages: number[] = [];
