@@ -1,5 +1,4 @@
-import { assertThrows } from "https://deno.land/std@0.182.0/testing/asserts.ts";
-import { assertEquals, assertMatch } from "../dev_deps.ts";
+import { assertEquals, assertMatch, assertThrows } from "../dev_deps.ts";
 import { addExpr, expr, handleLiteral } from "../src/utils/expr.ts";
 import { replaceParams } from "../src/utils/param.ts";
 import { toQS } from "../src/utils/qs.ts";

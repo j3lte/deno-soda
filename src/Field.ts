@@ -1,4 +1,4 @@
-import { DataType, FieldImpl } from "./types.ts";
+import { DataType, type FieldImpl } from "./types.ts";
 
 export const testFieldImpl = (field: FieldImpl | null, ...types: DataType[]): boolean =>
   field === null || field?.type === DataType._Unknown || types.includes(field.type);
