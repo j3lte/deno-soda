@@ -91,6 +91,7 @@ export class SodaQuery<T> {
   private async requestData<T>(
     url: string,
     opts?: RequesOpts,
+    parse: "json" | "text" = "json",
   ): DataResponse<T | null> {
     const requestInit = {
       ...opts,
@@ -101,7 +102,7 @@ export class SodaQuery<T> {
     this.#lastResponseHeaders = res.headers;
 
     if (res.ok) {
-      const data = await res.json() as T;
+      const data = (parse === "text" ? await res.text() : await res.json()) as T;
       return { error: null, status: res.status, data };
     }
 
@@ -463,6 +464,26 @@ export class SodaQuery<T> {
     return this.requestData<unknown>(url, { signal }).then((res) => ({
       ...res,
       data: res.data ?? { type: "FeatureCollection", features: [] },
+    }));
+  }
+
+  /**
+   * Run the query against the `.csv` endpoint and return the raw CSV string.
+   *
+   * The result is returned unparsed; pass it to a CSV parser (e.g. `@std/csv`)
+   * if you need rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   */
+  executeCSV(
+    queryID?: string,
+    signal?: AbortSignal,
+  ): DataResponse<string> {
+    const url = this.getURL(queryID).replace(/\.json/, ".csv");
+    return this.requestData<string>(url, { signal }, "text").then((res) => ({
+      ...res,
+      data: res.data ?? "",
     }));
   }
 

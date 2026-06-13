@@ -207,6 +207,27 @@ Deno.test("SodaQuery executeGeoJSON", async () => {
   }
 });
 
+Deno.test("SodaQuery executeCSV returns the raw CSV string", async () => {
+  const CSV = "https://test.example.com/resource/test.csv";
+
+  {
+    using _fetch = stubFetch({ [CSV]: new Response("a,b\n1,2", { status: 200 }) });
+    const res = await createSampleQuery().executeCSV();
+    assertEquals(res.error, null);
+    assertEquals(res.data, "a,b\n1,2");
+  }
+
+  {
+    // An error response yields an empty string.
+    using _fetch = stubFetch({
+      [CSV]: () => new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+    });
+    const res = await createSampleQuery().executeCSV();
+    assertNotEquals(res.error, null);
+    assertEquals(res.data, "");
+  }
+});
+
 Deno.test("SodaQuery getMetaData", async () => {
   const query = createSampleQuery();
   using _fetch = stubFetch({ "https://test.example.com/api/views/test": ok({}) });

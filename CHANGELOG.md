@@ -4,6 +4,8 @@
 
 ### Added
 
+- `SodaQuery.executeCSV()` — run the query against the `.csv` endpoint and
+  return the raw CSV string.
 - `Where.withinPolygon(field, wkt)` — `within_polygon` geospatial filter.
 - `SelectImpl.log()` (`ln`) and `SelectImpl.unaccent()` select functions.
 - `SelectCase(...)` — build SoQL `case(...)` expressions from `[condition, value]`
