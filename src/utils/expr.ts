@@ -70,6 +70,13 @@ function pow(...operands: Operand[]): string {
  * (`add`/`sub`/`mul`/`div`/`mod`/`pow`) combine numeric operands with
  * `+ - * / % ^`; each wraps its result in parentheses, so they nest safely
  * (e.g. `mul(add("a", "b"), "c")` → `((a + b) * c)`).
+ *
+ * @example
+ * ```ts
+ * expr.and("borough = 'BRONX'", "status = 'Open'"); // (borough = 'BRONX') and (status = 'Open')
+ * expr.or("borough = 'BRONX'", "borough = 'QUEENS'"); // (borough = 'BRONX') or (borough = 'QUEENS')
+ * expr.mul("price", "qty"); // (price * qty)
+ * ```
  */
 export const expr = {
   and,

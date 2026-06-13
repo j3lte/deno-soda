@@ -40,6 +40,12 @@ export class Where {
    *
    * @param expr Expression with `??` (identifier) and `?` (value) placeholders
    * @param params Values substituted into the placeholders
+   *
+   * @example
+   * ```ts
+   * Where.expr("?? > ? AND ?? < ?", "score", 50, "score", 100);
+   * // score > 50 AND score < 100
+   * ```
    */
   static expr(expr: string, ...params: SupportTypeElement[]): Where {
     return new Where(expr, params);
@@ -47,6 +53,11 @@ export class Where {
 
   /**
    * Field equals value (`field = value`). A `null` value becomes `IS NULL`.
+   *
+   * @example
+   * ```ts
+   * Where.eq("borough", "MANHATTAN"); // borough = 'MANHATTAN'
+   * ```
    */
   static eq(field: string | FieldImpl, value: any): Where {
     if (value === null) {
@@ -59,13 +70,26 @@ export class Where {
    * Build an `AND` of `field = value` conditions from an object.
    *
    * @param data Map of field name to value
+   *
+   * @example
+   * ```ts
+   * Where.from({ borough: "BRONX", status: "Open" });
+   * // (borough = 'BRONX' AND status = 'Open')
+   * ```
    */
   static from(data: Record<string, SupportTypeElement>): Where {
     const conditions = Object.keys(data).map((key) => this.eq(key, data[key]));
     return this.and(...conditions);
   }
 
-  /** Field greater than value (`field > value`). */
+  /**
+   * Field greater than value (`field > value`).
+   *
+   * @example
+   * ```ts
+   * Where.gt("score", 80); // score > 80
+   * ```
+   */
   static gt(
     field: string | FieldImpl,
     value: BasicType,
@@ -73,7 +97,14 @@ export class Where {
     return this.expr("?? > ?", getFieldName(field), value);
   }
 
-  /** Field greater than or equal to value (`field >= value`). */
+  /**
+   * Field greater than or equal to value (`field >= value`).
+   *
+   * @example
+   * ```ts
+   * Where.gte("score", 60); // score >= 60
+   * ```
+   */
   static gte(
     field: string | FieldImpl,
     value: BasicType,
@@ -81,7 +112,14 @@ export class Where {
     return this.expr("?? >= ?", getFieldName(field), value);
   }
 
-  /** Field less than value (`field < value`). */
+  /**
+   * Field less than value (`field < value`).
+   *
+   * @example
+   * ```ts
+   * Where.lt("priority", 3); // priority < 3
+   * ```
+   */
   static lt(
     field: string | FieldImpl,
     value: BasicType,
@@ -89,7 +127,14 @@ export class Where {
     return this.expr("?? < ?", getFieldName(field), value);
   }
 
-  /** Field less than or equal to value (`field <= value`). */
+  /**
+   * Field less than or equal to value (`field <= value`).
+   *
+   * @example
+   * ```ts
+   * Where.lte("priority", 5); // priority <= 5
+   * ```
+   */
   static lte(
     field: string | FieldImpl,
     value: BasicType,
@@ -100,6 +145,11 @@ export class Where {
   /**
    * Field not equal to value (`field != value`). A `null` value becomes
    * `IS NOT NULL`.
+   *
+   * @example
+   * ```ts
+   * Where.ne("status", "Closed"); // status != 'Closed'
+   * ```
    */
   static ne(field: string | FieldImpl, value: SupportTypeElement): Where {
     if (value === null) {
@@ -108,31 +158,66 @@ export class Where {
     return this.expr("?? != ?", getFieldName(field), value);
   }
 
-  /** Field is null (`field IS NULL`). */
+  /**
+   * Field is null (`field IS NULL`).
+   *
+   * @example
+   * ```ts
+   * Where.isNull("closed_date"); // closed_date IS NULL
+   * ```
+   */
   static isNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NULL", getFieldName(field));
   }
 
-  /** Field is not null (`field IS NOT NULL`). */
+  /**
+   * Field is not null (`field IS NOT NULL`).
+   *
+   * @example
+   * ```ts
+   * Where.isNotNull("closed_date"); // closed_date IS NOT NULL
+   * ```
+   */
   static isNotNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NOT NULL", getFieldName(field));
   }
 
-  /** Field is one of the given values (`field in (...)`). */
+  /**
+   * Field is one of the given values (`field in (...)`).
+   *
+   * @example
+   * ```ts
+   * Where.in("borough", "MANHATTAN", "BROOKLYN"); // borough in ('MANHATTAN','BROOKLYN')
+   * ```
+   */
   static in(field: string | FieldImpl, ...values: any[]): Where {
     const raw = values.length > 1 ? values : values[0];
     const params: any[] = Array.isArray(raw) ? raw : [raw];
     return this.expr("?? in ?", getFieldName(field), params as any);
   }
 
-  /** Field is none of the given values (`field not in (...)`). */
+  /**
+   * Field is none of the given values (`field not in (...)`).
+   *
+   * @example
+   * ```ts
+   * Where.notIn("status", "Closed", "Pending"); // status not in ('Closed','Pending')
+   * ```
+   */
   static notIn(field: string | FieldImpl, ...values: any[]): Where {
     const raw = values.length > 1 ? values : values[0];
     const params: any[] = Array.isArray(raw) ? raw : [raw];
     return this.expr("?? not in ?", getFieldName(field), params as any);
   }
 
-  /** Field matches a SoQL `LIKE` pattern. */
+  /**
+   * Field matches a SoQL `LIKE` pattern.
+   *
+   * @example
+   * ```ts
+   * Where.like("complaint_type", "Noise%"); // complaint_type like 'Noise%'
+   * ```
+   */
   static like(field: string | FieldImpl, value: any): Where {
     return this.expr("?? like ?", getFieldName(field), value);
   }
@@ -154,6 +239,11 @@ export class Where {
    * @param field  field name or Field instance
    * @param startValue  start value
    * @param endValue end value
+   *
+   * @example
+   * ```ts
+   * Where.between("score", 50, 100); // score between 50 and 100
+   * ```
    */
   static between(
     field:
@@ -206,6 +296,12 @@ export class Where {
    * field name.
    *
    * @param name Field name or {@link FieldImpl} instance
+   *
+   * @example
+   * ```ts
+   * const f = Where.field("score");
+   * f.between(50, 100); // score between 50 and 100
+   * ```
    */
   static field(name: string | FieldImpl): {
     gt: (value: BasicType) => Where;
@@ -254,7 +350,15 @@ export class Where {
     };
   }
 
-  /** Combine clauses with `AND`. Nullish clauses are ignored. */
+  /**
+   * Combine clauses with `AND`. Nullish clauses are ignored.
+   *
+   * @example
+   * ```ts
+   * Where.and(Where.eq("borough", "BRONX"), Where.isNotNull("closed_date"));
+   * // (borough = 'BRONX' AND closed_date IS NOT NULL)
+   * ```
+   */
   static and(...expr: (null | undefined | Where)[]): Where {
     const sql = `(${
       expr
@@ -265,7 +369,15 @@ export class Where {
     return new Where(sql, []);
   }
 
-  /** Combine clauses with `OR`. Nullish clauses are ignored. */
+  /**
+   * Combine clauses with `OR`. Nullish clauses are ignored.
+   *
+   * @example
+   * ```ts
+   * Where.or(Where.eq("borough", "BRONX"), Where.eq("borough", "QUEENS"));
+   * // (borough = 'BRONX' OR borough = 'QUEENS')
+   * ```
+   */
   static or(...expr: (null | undefined | Where)[]): Where {
     const sql = `(${
       expr
@@ -285,6 +397,12 @@ export class Where {
    * @param lonNW The longitude of the northwest corner of the box
    * @param latSE The latitude of the southeast corner of the box
    * @param lonSE The longitude of the southeast corner of the box
+   *
+   * @example
+   * ```ts
+   * Where.withinBox("location", 40.78, -73.98, 40.74, -73.94);
+   * // within_box(location, 40.78, -73.98, 40.74, -73.94)
+   * ```
    */
   static withinBox(
     field:
@@ -317,6 +435,12 @@ export class Where {
    * @param lat The latitude of the center of the circle
    * @param lon The longitude of the center of the circle
    * @param radius The radius of the circle in meters
+   *
+   * @example
+   * ```ts
+   * Where.withinCircle("location", 40.7128, -74.0060, 1000);
+   * // within_circle(location, 40.7128, -74.006, 1000)
+   * ```
    */
   static withinCircle(
     field:
@@ -345,6 +469,11 @@ export class Where {
    * This function is used on fields of type `Text` to find records that start with a given string
    * @param field The field to search
    * @param value The value to search for
+   *
+   * @example
+   * ```ts
+   * Where.startsWith("complaint_type", "Noise"); // starts_with(complaint_type, 'Noise')
+   * ```
    */
   static startsWith(field: string | FieldObject<DataType.Text>, value: string): Where {
     return this.expr("starts_with(??, ?)", getFieldName(field), value);
@@ -359,6 +488,12 @@ export class Where {
    *
    * @param field The field to search
    * @param value The value to search for. This should be of format 'POINT (...)' or 'POLYGON (...)'. See the link above for more details
+   *
+   * @example
+   * ```ts
+   * Where.intersects("the_geom", "POINT (-74.006 40.7128)");
+   * // intersects(the_geom, 'POINT (-74.006 40.7128)')
+   * ```
    */
   static intersects(
     field:
@@ -382,6 +517,11 @@ export class Where {
    * @param field The field to search
    * @param value A `MULTIPOLYGON (...)` value in Well-Known Text format
    *   (coordinates are longitude-first, space-separated)
+   *
+   * @example
+   * ```ts
+   * Where.withinPolygon("the_geom", "MULTIPOLYGON (((-74.0 40.7, -73.9 40.7, -73.9 40.8, -74.0 40.8, -74.0 40.7)))");
+   * ```
    */
   static withinPolygon(
     field:
