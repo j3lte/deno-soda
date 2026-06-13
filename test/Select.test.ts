@@ -2,6 +2,7 @@ import { assertEquals, assertThrows } from "@std/assert";
 import {
   Select,
   SelectAll,
+  SelectCase,
   SelectGreatest,
   SelectLeast,
   SelectRegrIntercept,
@@ -11,6 +12,7 @@ import {
 import { DataType } from "../src/types.ts";
 import { Field } from "../src/Field.ts";
 import { SelectFunction } from "../src/SelectImpl.ts";
+import { Where } from "../src/Where.ts";
 
 const createField = <T extends DataType>(type: T, name = "test") => Field(name, type);
 
@@ -102,6 +104,9 @@ Deno.test("Select (Number Functions)", () => {
 
   assertEquals(createSelect().standardDeviationSample().value, "stddev_samp(test)");
   assertThrows(() => createSelect(DataType.Text).standardDeviationSample());
+
+  assertEquals(createSelect().log().value, "ln(test)");
+  assertThrows(() => createSelect(DataType.Text).log());
 });
 
 Deno.test("Select (Date Extraction)", () => {
@@ -157,14 +162,8 @@ Deno.test("Select (Text functions", () => {
   assertEquals(createSelect().length().value, "length(test)");
   assertThrows(() => createSelect(DataType.Number).length());
 
-  assertEquals(createSelect().pad(1, "a", "LEFT").value, "pad_left(test, 1, 'a')");
-  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "LEFT"));
-
-  assertEquals(createSelect().pad(1, "a", "RIGHT").value, "pad_right(test, 1, 'a')");
-  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "RIGHT"));
-
-  // @ts-expect-error - testing invalid types
-  assertThrows(() => createSelect().pad(1, "a", "CENTER"));
+  assertEquals(createSelect().unaccent().value, "unaccent(test)");
+  assertThrows(() => createSelect(DataType.Number).unaccent());
 });
 
 Deno.test("Select (Spatial functions)", () => {
@@ -172,7 +171,7 @@ Deno.test("Select (Spatial functions)", () => {
 
   assertEquals(
     createSelect().distanceInMeters(0, 0).value,
-    "distance_in_meters(test, 'POINT(0, 0)')",
+    "distance_in_meters(test, 'POINT (0 0)')",
   );
   assertThrows(() => createSelect(DataType.Text).distanceInMeters(0, 0));
 
@@ -264,5 +263,41 @@ Deno.test("Select RegrR2", () => {
   assertThrows(() =>
     // @ts-ignore - testing invalid types
     SelectRegrR2(createField(DataType.Text), createField(DataType.Checkbox))
+  );
+});
+
+Deno.test("SelectCase", () => {
+  const select = SelectCase(
+    [Where.eq("disputed", true), "yes"],
+    [Where.eq("disputed", false), "no"],
+  );
+  assertEquals(
+    select.value,
+    "case(`disputed` = true, 'yes', `disputed` = false, 'no')",
+  );
+
+  // Composes with as()
+  assertEquals(
+    SelectCase([Where.gt("n", 0), "pos"]).as("label").value,
+    "case(`n` > 0, 'pos') as label",
+  );
+
+  // String condition passes through verbatim
+  assertEquals(
+    SelectCase(["x = 1", 2]).value,
+    "case(x = 1, 2)",
+  );
+
+  // Values are SoQL-escaped: single quotes are doubled (no injection / breakage).
+  assertEquals(
+    SelectCase([Where.eq("n", "a"), "O'Brien"]).value,
+    "case(`n` = 'a', 'O''Brien')",
+  );
+
+  // null and boolean values render as valid SoQL literals; "true" is the
+  // conventional default-case condition.
+  assertEquals(
+    SelectCase([Where.eq("n", 1), null], ["true", false]).value,
+    "case(`n` = 1, NULL, true, false)",
   );
 });

@@ -207,6 +207,27 @@ Deno.test("SodaQuery executeGeoJSON", async () => {
   }
 });
 
+Deno.test("SodaQuery executeCSV returns the raw CSV string", async () => {
+  const CSV = "https://test.example.com/resource/test.csv";
+
+  {
+    using _fetch = stubFetch({ [CSV]: new Response("a,b\n1,2", { status: 200 }) });
+    const res = await createSampleQuery().executeCSV();
+    assertEquals(res.error, null);
+    assertEquals(res.data, "a,b\n1,2");
+  }
+
+  {
+    // An error response yields an empty string.
+    using _fetch = stubFetch({
+      [CSV]: () => new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+    });
+    const res = await createSampleQuery().executeCSV();
+    assertNotEquals(res.error, null);
+    assertEquals(res.data, "");
+  }
+});
+
 Deno.test("SodaQuery getMetaData", async () => {
   const query = createSampleQuery();
   using _fetch = stubFetch({ "https://test.example.com/api/views/test": ok({}) });
@@ -216,13 +237,321 @@ Deno.test("SodaQuery getMetaData", async () => {
   assertEquals(meta.error, null);
 });
 
-Deno.test("SodaQuery single rejects and restores limit", async () => {
+Deno.test("SodaQuery getMetaData throws without a dataset", () => {
+  const query = new SodaQuery("test.example.com");
+  assertThrows(() => query.getMetaData(), Error, "no dataset");
+});
+
+Deno.test("SodaQuery getColumns extracts typed column metadata", async () => {
+  const query = createSampleQuery();
+  using _fetch = stubFetch({
+    "https://test.example.com/api/views/test": ok({
+      columns: [
+        { fieldName: "co", name: "CO", dataTypeName: "text", renderTypeName: "text" },
+        {}, // a column object with no recognized fields -> all default to ""
+      ],
+    }),
+  });
+
+  const res = await query.getColumns();
+
+  assertEquals(res.error, null);
+  assertEquals(res.data, [
+    { fieldName: "co", name: "CO", dataTypeName: "text", renderTypeName: "text" },
+    { fieldName: "", name: "", dataTypeName: "", renderTypeName: "" },
+  ]);
+});
+
+Deno.test("SodaQuery getColumns returns [] without columns and on error", async () => {
+  {
+    const query = createSampleQuery();
+    using _fetch = stubFetch({ "https://test.example.com/api/views/test": ok({}) });
+    assertEquals((await query.getColumns()).data, []);
+  }
+  {
+    const query = createSampleQuery();
+    using _fetch = stubFetch({
+      "https://test.example.com/api/views/test": () =>
+        new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+    });
+    const res = await query.getColumns();
+    assertNotEquals(res.error, null);
+    assertEquals(res.data, []);
+  }
+});
+
+Deno.test("SodaQuery emits zero limit/offset", () => {
+  const query = createSampleQuery().limit(0).offset(0);
+  assertEquals(query.buildQuery().$limit, "0");
+  assertEquals(query.buildQuery().$offset, "0");
+});
+
+Deno.test("SodaQuery single propagates a request rejection", async () => {
   const query = createSampleQuery<{ test: number }>().limit(5);
-  // Empty route table: any request rejects, driving single() into its catch.
+  // Empty route table: any request rejects, so single() rejects too.
   using _fetch = stubFetch({});
 
   await assertRejects(() => query.single());
 
-  // The temporary limit=1 must be rolled back to the original limit.
+  // single() builds its own $limit=1; it never mutates the query's own limit.
   assertEquals(query.buildQuery().$limit, "5");
+});
+
+Deno.test("SodaQuery single applies limit to a stored query", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  query.select("a").prepare("STORED");
+
+  using fetchStub = stubFetch({
+    "https://test.example.com/resource/test.json?$select=a&$limit=1": ok([{ test: 1 }]),
+  });
+
+  const res = await query.single("STORED");
+
+  assertEquals(res.data?.test, 1);
+  const [url] = fetchStub.calls[0].args;
+  assertEquals(url, "https://test.example.com/resource/test.json?$select=a&$limit=1");
+});
+
+Deno.test("SodaQuery single throws on an unknown stored query", () => {
+  const query = createSampleQuery();
+  assertThrows(() => query.single("NOPE"), Error, "No query with ID");
+});
+
+Deno.test("SodaQuery soql() and simple() override the builder", () => {
+  const soqlQuery = createSampleQuery().select("a").where("b = 1").soql("SELECT *");
+  assertEquals(soqlQuery.buildQuery().$query, "SELECT *");
+  assertEquals(soqlQuery.buildQuery().$select, undefined);
+
+  const simpleQuery = createSampleQuery().select("a").simple({ k: "v" });
+  assertEquals(simpleQuery.buildQuery().k, "v");
+  assertEquals(simpleQuery.buildQuery().$select, undefined);
+});
+
+Deno.test("SodaQuery clear resets all clauses", () => {
+  const query = createSampleQuery()
+    .select("a").where("b = 1").groupBy("c").orderBy("d").limit(5).offset(2).search("x");
+  query.clear();
+  assertEquals(query.buildQuery(), {});
+});
+
+Deno.test("SodaQuery forwards the AbortSignal to fetch", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  const controller = new AbortController();
+  using fetchStub = stubFetch({ [BASE]: ok([{ test: 1 }]) });
+
+  await query.execute(undefined, controller.signal);
+
+  const [, init] = fetchStub.calls[0].args;
+  assertEquals(init?.signal, controller.signal);
+});
+
+Deno.test("SodaQuery executeGeoJSON with a stored query", async () => {
+  const query = createSampleQuery();
+  query.select("a").prepare("GEO");
+  using _fetch = stubFetch({
+    "https://test.example.com/resource/test.geojson?$select=a": ok({
+      type: "FeatureCollection",
+      features: [],
+    }),
+  });
+  const res = await query.executeGeoJSON("GEO");
+  assertEquals(res.error, null);
+});
+
+Deno.test("SodaQuery orderBy appends ASC to a directionless string", () => {
+  assertEquals(createSampleQuery().orderBy("a").buildQuery().$order, "a ASC");
+  assertEquals(createSampleQuery().orderBy("a DESC").buildQuery().$order, "a DESC");
+});
+
+Deno.test("SodaQuery pages() iterates every page", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using fetchStub = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }, { test: 4 }]),
+    [`${BASE}?$limit=2&$offset=4`]: ok([{ test: 5 }]),
+  });
+
+  const pages: number[][] = [];
+  for await (const page of query.pages({ pageSize: 2 })) {
+    pages.push(page.map((r) => r.test));
+  }
+  assertEquals(pages, [[1, 2], [3, 4], [5]]);
+  assertEquals(fetchStub.calls.length, 3);
+});
+
+Deno.test("SodaQuery pages() stops on an empty trailing page", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([]),
+  });
+
+  const pages: number[] = [];
+  for await (const page of query.pages({ pageSize: 2 })) pages.push(page.length);
+  assertEquals(pages, [2]); // empty page is not yielded
+});
+
+Deno.test("SodaQuery pages() treats a null body as an empty page", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({ [`${BASE}?$limit=2&$offset=0`]: ok(null) });
+
+  const pages: number[] = [];
+  for await (const page of query.pages({ pageSize: 2 })) pages.push(page.length);
+  assertEquals(pages, []); // null body -> [] -> stops, nothing yielded
+});
+
+Deno.test("SodaQuery rows() yields individual rows", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
+  });
+
+  const rows: number[] = [];
+  for await (const row of query.rows({ pageSize: 2 })) rows.push(row.test);
+  assertEquals(rows, [1, 2, 3]);
+});
+
+Deno.test("SodaQuery pages() forwards the AbortSignal", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  const controller = new AbortController();
+  using fetchStub = stubFetch({ [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }]) });
+
+  for await (const _page of query.pages({ pageSize: 2, signal: controller.signal })) { /* drain */ }
+
+  const [, init] = fetchStub.calls[0].args;
+  assertEquals(init?.signal, controller.signal);
+});
+
+Deno.test("SodaQuery executeAll() collects every row", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+    [`${BASE}?$limit=2&$offset=2`]: ok([{ test: 3 }]),
+  });
+
+  const res = await query.executeAll({ pageSize: 2 });
+  assertEquals(res.error, null);
+  assertEquals(res.data.map((r) => r.test), [1, 2, 3]);
+});
+
+Deno.test("SodaQuery executeAll() respects max", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: ok([{ test: 1 }, { test: 2 }]),
+  });
+
+  const res = await query.executeAll({ pageSize: 2, max: 1 });
+  assertEquals(res.data.map((r) => r.test), [1]);
+});
+
+Deno.test("SodaQuery executeAll() returns the error on a failed page", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [`${BASE}?$limit=2&$offset=0`]: () =>
+      new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+  });
+
+  const res = await query.executeAll({ pageSize: 2 });
+  assertNotEquals(res.error, null);
+  assertEquals(res.data, []);
+});
+
+Deno.test("SodaQuery count() returns the total and drops select/group/order", async () => {
+  const query = createSampleQuery().select("x").groupBy("b").orderBy("c");
+  using fetchStub = stubFetch({
+    "https://test.example.com/resource/test.json?$select=count(*)": ok([{ count: "42" }]),
+  });
+
+  const res = await query.count();
+  assertEquals(res.data, 42);
+  const [url] = fetchStub.calls[0].args;
+  assertEquals(url, "https://test.example.com/resource/test.json?$select=count(*)");
+});
+
+Deno.test("SodaQuery count() keeps the where filter", async () => {
+  const query = createSampleQuery().where("a = 1");
+  // The exact $where encoding is produced by toQS; if this mock URL does not
+  // match, read the requested URL from the thrown "Unmocked request: <url>"
+  // error and use it verbatim.
+  using _fetch = stubFetch({
+    "https://test.example.com/resource/test.json?$select=count(*)&$where=(a+%3D+1)": ok([{
+      count: "5",
+    }]),
+  });
+
+  const res = await query.count();
+  assertEquals(res.data, 5);
+});
+
+Deno.test("SodaQuery count() returns 0 on error", async () => {
+  const query = createSampleQuery();
+  using _fetch = stubFetch({
+    "https://test.example.com/resource/test.json?$select=count(*)": () =>
+      new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+  });
+
+  const res = await query.count();
+  assertNotEquals(res.error, null);
+  assertEquals(res.data, 0);
+});
+
+Deno.test("SodaQuery count() with a stored queryID", async () => {
+  const query = createSampleQuery();
+  query.where("x = 1").prepare("STORED");
+  using fetchStub = stubFetch({
+    "https://test.example.com/resource/test.json?$select=count(*)&$where=(x+%3D+1)": ok([{
+      count: "7",
+    }]),
+  });
+
+  const res = await query.count("STORED");
+  assertEquals(res.data, 7);
+  const [url] = fetchStub.calls[0].args;
+  assertEquals(
+    url,
+    "https://test.example.com/resource/test.json?$select=count(*)&$where=(x+%3D+1)",
+  );
+});
+
+Deno.test("SodaQuery count() throws on an unknown stored queryID", () => {
+  const query = createSampleQuery();
+  assertThrows(() => query.count("NOPE"), Error, "No query with ID");
+});
+
+Deno.test("SodaQuery count() keeps the search query (q)", async () => {
+  const query = createSampleQuery().search("hello");
+  using _fetch = stubFetch({
+    "https://test.example.com/resource/test.json?$select=count(*)&q=hello": ok([{ count: "3" }]),
+  });
+
+  const res = await query.count();
+  assertEquals(res.data, 3);
+});
+
+Deno.test("SodaQuery pages() uses default pageSize of 1000", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using fetchStub = stubFetch({
+    [`${BASE}?$limit=1000&$offset=0`]: ok([{ test: 1 }]),
+  });
+
+  const pages: number[] = [];
+  for await (const page of query.pages()) pages.push(page.length);
+  assertEquals(pages, [1]);
+  assertEquals(fetchStub.calls.length, 1);
+});
+
+Deno.test("SodaQuery executeAll() wraps a non-Error throw", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  // Stub fetch to reject with a string (not an Error) to exercise the
+  // `err instanceof Error ? err : new Error(String(err))` branch.
+  using _fetch = stub(
+    globalThis,
+    "fetch",
+    (): Promise<Response> => Promise.reject("network failure"),
+  );
+
+  const res = await query.executeAll({ pageSize: 2 });
+  assertNotEquals(res.error, null);
+  assertEquals(res.data, []);
 });

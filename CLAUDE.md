@@ -6,6 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The developer handles all `git commit`, `git push`, and tag/release operations himself. Do not commit or push unless explicitly asked. Make code changes and leave them staged/unstaged for him to review.
 
+## Changelog
+
+Always keep a `CHANGELOG.md` (Keep a Changelog format). Record every user-facing change there as you make it. All unreleased changes go under a `## [Unreleased]` heading — add `### Added` / `### Fixed` / `### Changed` subsections as needed. Do not write a version number or date yourself: the release workflow stamps `## [Unreleased]` with the version and date via `deno task set-version`, so the heading must stay exactly `## [Unreleased]`.
+
+## llms.txt
+
+Keep `llms.txt` (root, [llmstxt.org](https://llmstxt.org/) format) current. Whenever the public API changes — new/removed/renamed methods or exports — update its summary, examples, and the per-symbol doc links to match. It ships in the JSR package, so it must reflect the released API.
+
+## Claude files
+
+Put all Claude-related files (specs, plans, scratch notes, and any other generated artifacts) under `.claude/`. That folder is gitignored, so nothing there is committed or published. `CLAUDE.md` itself stays at the repo root (Claude Code loads it from there).
+
+## Static analysis (fallow)
+
+Whenever `fallow` is installed (`command -v fallow`), analyse the code with it after making changes. Use `fallow audit` for the changed files, or `fallow dead-code` / `fallow health` / `fallow dupes` for the whole codebase. Config lives in `.fallowrc.jsonc`; the `.fallow/` cache is gitignored.
+
+Caveat: this is a **library**, so `dead-code` reports the public API (exported `SelectImpl`/`SodaQuery`/`Where` methods, exported enum members) as "unused" — those are false positives consumed by external users. Act on genuinely internal dead code, complexity hotspots, and duplication; ignore the public-API noise.
+
 ## Commands
 
 Deno tasks (defined in `deno.json`):
@@ -17,7 +35,7 @@ Deno tasks (defined in `deno.json`):
 - `deno task lint` — lint `src/` and `test/`
 - `deno task format` — format `src/` and `test/`
 - `deno task coverage` — emit `.coverage/coverage.lcov`
-- `deno task localTest` — watch-mode runner (`scripts/runTest.ts`) that builds an HTML coverage report via `genhtml` (needs `lcov` installed)
+- `deno task local-test` — watch-mode runner (`scripts/run-test.ts`) that builds an HTML coverage report via `genhtml` (needs `lcov` installed)
 - `deno task npm <version>` — build the NPM package into `npm/` via dnt
 
 CI (`.github/workflows/main.yml`) runs `deno fmt --check`, `deno task lint`, and `deno task test` on Linux/Windows/macOS. Lint enforces two non-default rules: `ban-untagged-todo` and `explicit-function-return-type` — every function needs an explicit return type, and TODOs must be tagged.

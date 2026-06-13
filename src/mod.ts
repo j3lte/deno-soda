@@ -9,6 +9,7 @@ export { SelectFunction, SelectImpl } from "./SelectImpl.ts";
 export {
   Select,
   SelectAll,
+  SelectCase,
   SelectGreatest,
   SelectLeast,
   SelectRegrIntercept,

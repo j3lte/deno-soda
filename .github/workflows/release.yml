@@ -35,7 +35,7 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Set version in deno.json
-        run: deno task setVersion ${{ github.event.inputs.version }}
+        run: deno task set-version ${{ github.event.inputs.version }}
 
       - name: Verify package (publish dry-run)
         run: deno publish --dry-run --allow-dirty

@@ -20,7 +20,7 @@ function formatDate(date: Date): string {
 }
 
 function escapeString(str: string): string {
-  return str.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+  return str.replaceAll("'", "''");
 }
 
 export function replaceParams(

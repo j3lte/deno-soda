@@ -7,3 +7,5 @@ npm/
 _local_testing.ts
 .coverage/
 coverage.lcov
+.claude/
+.fallow/

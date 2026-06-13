@@ -13,6 +13,14 @@ import { toQS } from "./utils/qs.ts";
 import { SelectImpl } from "./SelectImpl.ts";
 import { Order } from "./Order.ts";
 import { addExpr, expr } from "./utils/expr.ts";
+
+/**
+ * Chainable builder and HTTP client for the Socrata Open Data API (SODA).
+ *
+ * Configure the query with the fluent methods ({@link select}, {@link where},
+ * {@link orderBy}, ...) then run it with {@link execute}, {@link single} or
+ * {@link executeGeoJSON}. The type parameter `T` describes the shape of a row.
+ */
 export class SodaQuery<T> {
   #domain: string;
   #datasetId: string | null = null;
@@ -58,6 +66,10 @@ export class SodaQuery<T> {
     return `/resource/${this.#datasetId}.json`;
   }
 
+  private resourceUrl(queryObj: QueryObj): string {
+    return `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+  }
+
   private get requestHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -83,6 +95,7 @@ export class SodaQuery<T> {
   private async requestData<T>(
     url: string,
     opts?: RequesOpts,
+    parse: "json" | "text" = "json",
   ): DataResponse<T | null> {
     const requestInit = {
       ...opts,
@@ -93,7 +106,7 @@ export class SodaQuery<T> {
     this.#lastResponseHeaders = res.headers;
 
     if (res.ok) {
-      const data = await res.json() as T;
+      const data = (parse === "text" ? await res.text() : await res.json()) as T;
       return { error: null, status: res.status, data };
     }
 
@@ -148,10 +161,10 @@ export class SodaQuery<T> {
       if (this.#order.length > 0) {
         query.$order = this.#order.join(", ");
       }
-      if (this.#offset) {
+      if (this.#offset !== null) {
         query.$offset = this.#offset.toString();
       }
-      if (this.#limit) {
+      if (this.#limit !== null) {
         query.$limit = this.#limit.toString();
       }
       if (this.#_q) {
@@ -169,6 +182,12 @@ export class SodaQuery<T> {
   /**
    * Get the URL that will be used to make the request, can be used for debugging
    * @returns {string} The URL
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * console.log(query.where(Where.eq("borough", "BRONX")).getURL());
+   * ```
    */
   getURL(queryID?: string): string {
     let queryObj: QueryObj;
@@ -225,6 +244,11 @@ export class SodaQuery<T> {
    * Set the dataset to work against. This can be called multiple times, but only if strict mode is disabled.
    *
    * @param datasetId The dataset to work against
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * ```
    */
   withDataset(datasetId: string): this {
     if (this.#datasetId && this.#strict) {
@@ -285,6 +309,16 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Add fields to the `$select` clause. Accepts plain strings, {@link SelectImpl}
+   * objects or {@link FieldImpl} instances.
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.select("complaint_type", "borough", Select("incident_zip").as("zip"));
+   * ```
+   */
   select(...selects: Array<string | SelectImpl | FieldImpl>): this {
     const selectArray = selects.map((
       s,
@@ -293,22 +327,60 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Add conditions to the `$where` clause. Accepts strings, `{field: value}`
+   * objects or {@link Where} instances; multiple conditions are AND-ed together.
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.where(Where.eq("borough", "BROOKLYN"), Where.gt("incident_address", "0"));
+   * ```
+   */
   where(...where: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#where, where);
     return this;
   }
 
+  /**
+   * Add conditions to the `$having` clause (requires a {@link groupBy}).
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.groupBy("borough").having(Where.gt("count(*)", 100));
+   * ```
+   */
   having(...having: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#having, having);
     return this;
   }
 
+  /**
+   * Add fields to the `$group` clause.
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.select("borough", Select("*").count().as("total")).groupBy("borough");
+   * ```
+   */
   groupBy(...group: Array<string | FieldImpl>): this {
     const groupArray = group.map((g) => g.toString());
     this.#group.push(...groupArray);
     return this;
   }
 
+  /**
+   * Add fields to the `$order` clause. Strings without an explicit direction
+   * default to `ASC`; {@link Order} instances carry their own direction.
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.orderBy(Order.by("created_date").desc, "borough");
+   * ```
+   */
   orderBy(...order: Array<string | Order>): this {
     const orders = order.map((order: string | Order) =>
       order instanceof Order
@@ -319,11 +391,29 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Set the `$offset` (number of rows to skip).
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.limit(50).offset(100); // skip first 100 rows
+   * ```
+   */
   offset(offset: number): this {
     this.#offset = offset;
     return this;
   }
 
+  /**
+   * Set the `$limit` (maximum number of rows to return).
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.limit(10); // return at most 10 rows
+   * ```
+   */
   limit(limit: number): this {
     this.#limit = limit;
     return this;
@@ -333,6 +423,12 @@ export class SodaQuery<T> {
    * Full text search
    * @param q {string} The search query
    * @returns {SodaQuery} The query object
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.search("noise complaint").limit(20);
+   * ```
    */
   search(q: string): this {
     this.#_q = q;
@@ -342,12 +438,27 @@ export class SodaQuery<T> {
   /**
    * Include system fields in the response
    * @returns {SodaQuery} The query object
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.withSystemFields().limit(5);
+   * ```
    */
   withSystemFields(): this {
     this.#withSystemFields = true;
     return this;
   }
 
+  /**
+   * Reset all clauses, returning the query to an empty state.
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.where(Where.eq("borough", "BRONX")).clear(); // back to empty
+   * ```
+   */
   clear(): this {
     this.#simple = null;
     this.#soql = null;
@@ -365,6 +476,13 @@ export class SodaQuery<T> {
 
   /**
    * Build a query object and store it in the query map, then clear the query to start a new one
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * query.where(Where.eq("borough", "BROOKLYN")).prepare("brooklyn");
+   * const { data } = await query.execute("brooklyn");
+   * ```
    */
   prepare(queryID: string): this {
     this.#queryMap.set(queryID, { ...this.buildQuery() });
@@ -372,6 +490,18 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Run the query and return all matching rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data, error } = await query.where(Where.eq("borough", "BRONX")).execute();
+   * ```
+   */
   execute(
     queryID?: string,
     signal?: AbortSignal,
@@ -384,24 +514,56 @@ export class SodaQuery<T> {
     }));
   }
 
+  /**
+   * Run the query constrained to a single row and return the first row
+   * (or `null`). Works for both the fluent query and a stored `queryID`.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data } = await query.where(Where.eq("unique_key", "10000001")).single();
+   * ```
+   */
   single(
     queryID?: string,
     signal?: AbortSignal,
   ): DataResponse<T & ExtraDataFields> {
-    const currentLimit = this.#limit;
-    this.#limit = 1;
-    return this.execute(queryID, signal).then((res) => {
-      this.#limit = currentLimit;
-      return {
-        ...res,
-        data: res.data?.[0] ?? null,
-      };
-    }).catch((err) => {
-      this.#limit = currentLimit;
-      return Promise.reject(err);
-    });
+    let queryObj: QueryObj;
+    if (queryID) {
+      if (!this.#queryMap.has(queryID)) {
+        throw new Error(`No query with ID ${queryID} found!`);
+      }
+      queryObj = { ...this.#queryMap.get(queryID) as QueryObj };
+    } else {
+      queryObj = this.buildQuery();
+    }
+    queryObj.$limit = 1;
+
+    // `$limit=1` is always present, so the query string is never empty.
+    const url = this.resourceUrl(queryObj);
+
+    return this.requestData<Array<T & ExtraDataFields>>(url, { signal }).then((res) => ({
+      ...res,
+      data: (res.data?.[0] ?? null) as T & ExtraDataFields,
+    }));
   }
 
+  /**
+   * Run the query against the `.geojson` endpoint. Falls back to an empty
+   * `FeatureCollection` when the response is empty.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data: geojson } = await query.where(Where.eq("borough", "BRONX")).executeGeoJSON();
+   * ```
+   */
   executeGeoJSON(
     queryID?: string,
     signal?: AbortSignal,
@@ -413,12 +575,243 @@ export class SodaQuery<T> {
     }));
   }
 
+  /**
+   * Run the query against the `.csv` endpoint and return the raw CSV string.
+   *
+   * The result is returned unparsed; pass it to a CSV parser (e.g. `@std/csv`)
+   * if you need rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data: csv } = await query.select("borough", "complaint_type").limit(100).executeCSV();
+   * ```
+   */
+  executeCSV(
+    queryID?: string,
+    signal?: AbortSignal,
+  ): DataResponse<string> {
+    const url = this.getURL(queryID).replace(/\.json/, ".csv");
+    return this.requestData<string>(url, { signal }, "text").then((res) => ({
+      ...res,
+      data: res.data ?? "",
+    }));
+  }
+
+  private async fetchPage(
+    offset: number,
+    pageSize: number,
+    signal?: AbortSignal,
+  ): Promise<Array<T & ExtraDataFields>> {
+    const queryObj = this.buildQuery();
+    queryObj.$limit = pageSize;
+    queryObj.$offset = offset;
+    const url = this.resourceUrl(queryObj);
+    const res = await this.requestData<Array<T & ExtraDataFields>>(url, { signal });
+    if (res.error) {
+      throw res.error;
+    }
+    return res.data ?? [];
+  }
+
+  /**
+   * Asynchronously iterate the result set one page at a time, transparently
+   * advancing `$offset`. Each yielded value is a page of rows.
+   *
+   * For a stable full scan, set a deterministic order first
+   * (e.g. `orderBy(":id")`); the query's own `limit`/`offset` are ignored here.
+   *
+   * @param opts `pageSize` (default 1000) and an optional abort `signal`
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * for await (const page of query.orderBy(":id").pages({ pageSize: 500 })) {
+   *   console.log(page.length);
+   * }
+   * ```
+   */
+  async *pages(
+    opts: { pageSize?: number; signal?: AbortSignal } = {},
+  ): AsyncGenerator<Array<T & ExtraDataFields>> {
+    const pageSize = opts.pageSize ?? 1000;
+    let offset = 0;
+    while (true) {
+      const rows = await this.fetchPage(offset, pageSize, opts.signal);
+      if (rows.length > 0) {
+        yield rows;
+      }
+      if (rows.length < pageSize) {
+        break;
+      }
+      offset += pageSize;
+    }
+  }
+
+  /**
+   * Asynchronously iterate the result set one row at a time (see {@link pages}).
+   *
+   * @param opts `pageSize` (default 1000) and an optional abort `signal`
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * for await (const row of query.orderBy(":id").rows()) {
+   *   console.log(row);
+   * }
+   * ```
+   */
+  async *rows(
+    opts: { pageSize?: number; signal?: AbortSignal } = {},
+  ): AsyncGenerator<T & ExtraDataFields> {
+    for await (const page of this.pages(opts)) {
+      for (const row of page) {
+        yield row;
+      }
+    }
+  }
+
+  /**
+   * Eagerly page through the entire result set and return every row in one
+   * array (see {@link pages}). Returns a {@link DataResponse} like {@link execute}.
+   *
+   * @param opts `pageSize` (default 1000), an optional `max` row cap, and an
+   *   optional abort `signal`
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data } = await query.where(Where.eq("borough", "QUEENS")).executeAll({ max: 5000 });
+   * ```
+   */
+  async executeAll(
+    opts: { pageSize?: number; max?: number; signal?: AbortSignal } = {},
+  ): DataResponse<Array<T & ExtraDataFields>> {
+    const all: Array<T & ExtraDataFields> = [];
+    try {
+      for await (const page of this.pages(opts)) {
+        all.push(...page);
+        if (opts.max !== undefined && all.length >= opts.max) {
+          return { error: null, status: 200, data: all.slice(0, opts.max) };
+        }
+      }
+      return { error: null, status: 200, data: all };
+    } catch (err) {
+      return {
+        error: err instanceof Error ? err : new Error(String(err)),
+        status: 0,
+        data: [],
+      };
+    }
+  }
+
+  /**
+   * Count the rows that match the current `where` / search filters.
+   *
+   * Emits `$select=count(*)` and ignores any `select`, `group` or `order` set on
+   * the query, so the result is always the total number of matching rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data: total } = await query.where(Where.eq("borough", "MANHATTAN")).count();
+   * ```
+   */
+  count(queryID?: string, signal?: AbortSignal): DataResponse<number> {
+    let base: QueryObj;
+    if (queryID) {
+      if (!this.#queryMap.has(queryID)) {
+        throw new Error(`No query with ID ${queryID} found!`);
+      }
+      base = this.#queryMap.get(queryID) as QueryObj;
+    } else {
+      base = this.buildQuery();
+    }
+
+    const queryObj: QueryObj = { $select: "count(*)" };
+    if (base.$where !== undefined) {
+      queryObj.$where = base.$where;
+    }
+    if (base.q !== undefined) {
+      queryObj.q = base.q;
+    }
+
+    const url = this.resourceUrl(queryObj);
+    return this.requestData<Array<{ count: string }>>(url, { signal }).then((res) => ({
+      ...res,
+      data: res.data?.[0]?.count !== undefined ? Number(res.data[0].count) : 0,
+    }));
+  }
+
+  /**
+   * Fetch the dataset's metadata from the `/api/views` endpoint.
+   *
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data: meta } = await query.getMetaData();
+   * ```
+   */
   getMetaData(signal?: AbortSignal): DataResponse<unknown> {
+    if (!this.#datasetId) {
+      throw new Error("no dataset given to work against!");
+    }
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url, { signal });
   }
+
+  /**
+   * Fetch the dataset's column metadata (name and data type per column).
+   *
+   * Built on {@link getMetaData}. Note: `dataTypeName` is the view's data type
+   * (e.g. dates are `calendar_date`), which differs from the SoQL type names in
+   * {@link DataType} — it is returned verbatim, not mapped.
+   *
+   * @param signal Optional abort signal
+   *
+   * @example
+   * ```ts
+   * const query = new SodaQuery("data.cityofnewyork.us").withDataset("erm2-nwe9");
+   * const { data: columns } = await query.getColumns();
+   * ```
+   */
+  getColumns(
+    signal?: AbortSignal,
+  ): DataResponse<
+    Array<{ fieldName: string; name: string; dataTypeName: string; renderTypeName: string }>
+  > {
+    return this.getMetaData(signal).then((res) => {
+      const columns = (res.data as { columns?: Array<Record<string, unknown>> } | null)?.columns ??
+        [];
+      return {
+        ...res,
+        data: columns.map((c) => ({
+          fieldName: String(c.fieldName ?? ""),
+          name: String(c.name ?? ""),
+          dataTypeName: String(c.dataTypeName ?? ""),
+          renderTypeName: String(c.renderTypeName ?? ""),
+        })),
+      };
+    });
+  }
 }
 
+/**
+ * Create a {@link SodaQuery} with its dataset already set.
+ *
+ * @param domain The Socrata domain to query
+ * @param dataSetId The dataset (resource) ID
+ * @param authOpts Optional authentication options
+ * @param options Optional query options
+ */
 export const createQueryWithDataset = <T>(
   domain: string,
   dataSetId: string,

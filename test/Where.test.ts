@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertMatch } from "@std/assert";
 import { Where } from "../mod.ts";
 
 Deno.test("Where.constructor", () => {
@@ -64,15 +64,15 @@ Deno.test("Where.isNotNull", () => {
 });
 
 Deno.test("Where.in", () => {
-  assertEquals(Where.in("a", "b").toString(), "`a` in 'b'");
-  assertEquals(Where.in("a", 1).toString(), "`a` in 1");
+  assertEquals(Where.in("a", "b").toString(), "`a` in ('b')");
+  assertEquals(Where.in("a", 1).toString(), "`a` in (1)");
   assertEquals(Where.in("a", 1, 2).toString(), "`a` in (1,2)");
   assertEquals(Where.in("a", [1, 2]).toString(), "`a` in (1,2)");
 });
 
 Deno.test("Where.notIn", () => {
-  assertEquals(Where.notIn("a", "b").toString(), "`a` not in 'b'");
-  assertEquals(Where.notIn("a", 1).toString(), "`a` not in 1");
+  assertEquals(Where.notIn("a", "b").toString(), "`a` not in ('b')");
+  assertEquals(Where.notIn("a", 1).toString(), "`a` not in (1)");
   assertEquals(Where.notIn("a", 1, 2).toString(), "`a` not in (1,2)");
   assertEquals(Where.notIn("a", [1, 2]).toString(), "`a` not in (1,2)");
 });
@@ -140,6 +140,18 @@ Deno.test("Where.intersects", () => {
   );
 });
 
+Deno.test("Where.eq with a Date", () => {
+  const where = Where.eq("a", new Date(0)).toString();
+  assertMatch(where, /`a` = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}'/);
+});
+
+Deno.test("Where.withinPolygon", () => {
+  assertEquals(
+    Where.withinPolygon("a", "MULTIPOLYGON (((0 0, 1 0, 1 1, 0 0)))").toString(),
+    "within_polygon(`a`, 'MULTIPOLYGON (((0 0, 1 0, 1 1, 0 0)))')",
+  );
+});
+
 Deno.test("Where.field", () => {
   assertEquals(Where.field("a").gt(1).toString(), "`a` > 1");
   assertEquals(Where.field("a").gte(1).toString(), "`a` >= 1");
@@ -173,6 +185,10 @@ Deno.test("Where.field", () => {
   assertEquals(
     Where.field("a").intersects("test").toString(),
     "intersects(`a`, 'test')",
+  );
+  assertEquals(
+    Where.field("a").withinPolygon("MULTIPOLYGON (((0 0, 1 0, 1 1, 0 0)))").toString(),
+    "within_polygon(`a`, 'MULTIPOLYGON (((0 0, 1 0, 1 1, 0 0)))')",
   );
   // assertEquals(Where.field("a").between(1, 2).toString(), "");
 });
