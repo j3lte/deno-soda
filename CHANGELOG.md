@@ -17,6 +17,8 @@
 - `SelectImpl.log()` (`ln`) and `SelectImpl.unaccent()` select functions.
 - `SelectCase(...)` — build SoQL `case(...)` expressions from `[condition, value]`
   pairs (condition is a `Where` or raw SoQL string).
+- Arithmetic expression helpers `expr.add` / `sub` / `mul` / `div` / `mod` / `pow`
+  (`+ - * / % ^`) that nest safely with parentheses.
 
 ### Fixed
 

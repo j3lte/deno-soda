@@ -2,6 +2,8 @@ import { assertEquals, assertMatch, assertThrows } from "@std/assert";
 import { addExpr, expr, handleLiteral } from "../src/utils/expr.ts";
 import { replaceParams } from "../src/utils/param.ts";
 import { toQS } from "../src/utils/qs.ts";
+import { Field } from "../src/Field.ts";
+import { DataType } from "../src/types.ts";
 
 Deno.test("Utils::expr::handleLiteral", () => {
   assertEquals(handleLiteral("test"), "'test'");
@@ -17,6 +19,18 @@ Deno.test("Utils::expr::expr", () => {
   assertEquals(expr.and("test", "test2"), "(test) and (test2)");
   assertEquals(expr.or("test"), "(test)");
   assertEquals(expr.or("test", "test2"), "(test) or (test2)");
+});
+
+Deno.test("Utils::expr::arithmetic", () => {
+  assertEquals(expr.add("a", "b"), "(a + b)");
+  assertEquals(expr.add("a", "b", "c"), "(a + b + c)");
+  assertEquals(expr.sub("total", 5), "(total - 5)");
+  assertEquals(expr.mul("price", "qty"), "(price * qty)");
+  assertEquals(expr.div(expr.add("a", "b"), 2), "((a + b) / 2)");
+  assertEquals(expr.mod("n", 2), "(n % 2)");
+  assertEquals(expr.pow("base", "exp"), "(base ^ exp)");
+  // A FieldImpl operand resolves to its name; numbers render literally.
+  assertEquals(expr.mul(Field("price", DataType.Number), 1.1), "(price * 1.1)");
 });
 
 Deno.test("Utils::expr::addExpr", () => {
