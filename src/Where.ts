@@ -156,8 +156,26 @@ export class Where {
     );
   }
 
-  // deno-lint-ignore explicit-function-return-type
-  static field(name: string | FieldImpl) {
+  static field(name: string | FieldImpl): {
+    gt: (value: BasicType) => Where;
+    gte: (value: BasicType) => Where;
+    lt: (value: BasicType) => Where;
+    lte: (value: BasicType) => Where;
+    ne: (value: SupportTypeElement) => Where;
+    eq: (value: SupportTypeElement) => Where;
+    isNull: () => Where;
+    isNotNull: () => Where;
+    in: (...values: any[]) => Where;
+    notIn: (...values: any[]) => Where;
+    like: (value: any) => Where;
+    notLike: (value: any) => Where;
+    between: (start: any, end: any) => Where;
+    notBetween: (start: any, end: any) => Where;
+    withinBox: (latNW: number, lonNW: number, latSE: number, lonSE: number) => Where;
+    withinCircle: (lat: number, lon: number, radius: number) => Where;
+    startsWith: (value: string) => Where;
+    intersects: (value: string) => Where;
+  } {
     const fName = getFieldName(name);
     return {
       gt: (value: BasicType) => this.gt(fName, value),

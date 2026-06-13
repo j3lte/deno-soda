@@ -3,6 +3,14 @@
   "version": "0.4.6",
   "license": "MIT",
   "exports": "./mod.ts",
+  "publish": {
+    "exclude": [
+      "test/",
+      "scripts/",
+      ".github/",
+      "CLAUDE.md"
+    ]
+  },
   "tasks": {
     "format": "deno fmt ./src/ ./test/",
     "lint": "deno lint ./src/ ./test/",
