@@ -9,6 +9,8 @@
 - `SodaQuery.executeAll(opts?)` — collect every page into one array (optional
   `max` cap).
 - `SodaQuery.count()` — total count of rows matching the current filters.
+- `SodaQuery.getColumns()` — typed column metadata (field name + data type) for
+  the dataset.
 - `SodaQuery.executeCSV()` — run the query against the `.csv` endpoint and
   return the raw CSV string.
 - `Where.withinPolygon(field, wkt)` — `within_polygon` geospatial filter.

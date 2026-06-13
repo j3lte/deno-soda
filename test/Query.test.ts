@@ -242,6 +242,44 @@ Deno.test("SodaQuery getMetaData throws without a dataset", () => {
   assertThrows(() => query.getMetaData(), Error, "no dataset");
 });
 
+Deno.test("SodaQuery getColumns extracts typed column metadata", async () => {
+  const query = createSampleQuery();
+  using _fetch = stubFetch({
+    "https://test.example.com/api/views/test": ok({
+      columns: [
+        { fieldName: "co", name: "CO", dataTypeName: "text", renderTypeName: "text" },
+        {}, // a column object with no recognized fields -> all default to ""
+      ],
+    }),
+  });
+
+  const res = await query.getColumns();
+
+  assertEquals(res.error, null);
+  assertEquals(res.data, [
+    { fieldName: "co", name: "CO", dataTypeName: "text", renderTypeName: "text" },
+    { fieldName: "", name: "", dataTypeName: "", renderTypeName: "" },
+  ]);
+});
+
+Deno.test("SodaQuery getColumns returns [] without columns and on error", async () => {
+  {
+    const query = createSampleQuery();
+    using _fetch = stubFetch({ "https://test.example.com/api/views/test": ok({}) });
+    assertEquals((await query.getColumns()).data, []);
+  }
+  {
+    const query = createSampleQuery();
+    using _fetch = stubFetch({
+      "https://test.example.com/api/views/test": () =>
+        new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
+    });
+    const res = await query.getColumns();
+    assertNotEquals(res.error, null);
+    assertEquals(res.data, []);
+  }
+});
+
 Deno.test("SodaQuery emits zero limit/offset", () => {
   const query = createSampleQuery().limit(0).offset(0);
   assertEquals(query.buildQuery().$limit, "0");

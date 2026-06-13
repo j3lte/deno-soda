@@ -619,6 +619,35 @@ export class SodaQuery<T> {
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url, { signal });
   }
+
+  /**
+   * Fetch the dataset's column metadata (name and data type per column).
+   *
+   * Built on {@link getMetaData}. Note: `dataTypeName` is the view's data type
+   * (e.g. dates are `calendar_date`), which differs from the SoQL type names in
+   * {@link DataType} — it is returned verbatim, not mapped.
+   *
+   * @param signal Optional abort signal
+   */
+  getColumns(
+    signal?: AbortSignal,
+  ): DataResponse<
+    Array<{ fieldName: string; name: string; dataTypeName: string; renderTypeName: string }>
+  > {
+    return this.getMetaData(signal).then((res) => {
+      const columns = (res.data as { columns?: Array<Record<string, unknown>> } | null)?.columns ??
+        [];
+      return {
+        ...res,
+        data: columns.map((c) => ({
+          fieldName: String(c.fieldName ?? ""),
+          name: String(c.name ?? ""),
+          dataTypeName: String(c.dataTypeName ?? ""),
+          renderTypeName: String(c.renderTypeName ?? ""),
+        })),
+      };
+    });
+  }
 }
 
 /**
