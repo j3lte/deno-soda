@@ -10,6 +10,10 @@ The developer handles all `git commit`, `git push`, and tag/release operations h
 
 Always keep a `CHANGELOG.md` (Keep a Changelog format). Record every user-facing change there as you make it. All unreleased changes go under a `## [Unreleased]` heading — add `### Added` / `### Fixed` / `### Changed` subsections as needed. Do not write a version number or date yourself: the release workflow stamps `## [Unreleased]` with the version and date via `deno task set-version`, so the heading must stay exactly `## [Unreleased]`.
 
+## llms.txt
+
+Keep `llms.txt` (root, [llmstxt.org](https://llmstxt.org/) format) current. Whenever the public API changes — new/removed/renamed methods or exports — update its summary, examples, and the per-symbol doc links to match. It ships in the JSR package, so it must reflect the released API.
+
 ## Claude files
 
 Put all Claude-related files (specs, plans, scratch notes, and any other generated artifacts) under `.claude/`. That folder is gitignored, so nothing there is committed or published. `CLAUDE.md` itself stays at the repo root (Claude Code loads it from there).

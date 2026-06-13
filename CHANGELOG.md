@@ -19,6 +19,8 @@
   pairs (condition is a `Where` or raw SoQL string).
 - Arithmetic expression helpers `expr.add` / `sub` / `mul` / `div` / `mod` / `pow`
   (`+ - * / % ^`) that nest safely with parentheses.
+- `llms.txt` ([llmstxt.org](https://llmstxt.org/)) project index, shipped in the
+  JSR package (served at `https://jsr.io/@j3lte/soda/<version>/llms.txt`).
 
 ### Fixed
 
