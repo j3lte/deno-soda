@@ -9,7 +9,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/j3lte/deno-soda?style=for-the-badge)](https://github.com/j3lte/deno-soda/issues "Github Issues")
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/j3lte/deno-soda/main.yml?branch=main&style=for-the-badge)](https://github.com/j3lte/deno-soda/actions/workflows/main.yml "GitHub Workflow Status")
 [![Codecov](https://img.shields.io/codecov/c/github/j3lte/deno-soda?style=for-the-badge&token=F9CAI1FCMX)](https://codecov.io/gh/j3lte/deno-soda "Codecov")
-[![Deno docs](https://img.shields.io/badge/Deno-Docs-blue?style=for-the-badge)](https://doc.deno.land/https/deno.land/x/soda/mod.ts "Deno docs")
+[![JSR Version](https://img.shields.io/jsr/v/@j3lte/soda?style=for-the-badge)](https://jsr.io/@j3lte/soda "JSR")
 
 SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
 
@@ -43,13 +43,18 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
 
 ## Installation
 
-Deno:
+**Deno** — from [JSR](https://jsr.io/@j3lte/soda):
 
-```ts
-import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
+```sh
+deno add jsr:@j3lte/soda
 ```
 
-Node: (`npm i soda-query`)
+```ts
+import { SodaQuery } from "@j3lte/soda";
+// or import directly, without adding it: "jsr:@j3lte/soda"
+```
+
+**Node** (`npm i soda-query`):
 
 ```ts
 import { SodaQuery } from "soda-query";
@@ -62,7 +67,7 @@ import { SodaQuery } from "soda-query";
 The `SodaQuery` class accepts plain strings in its methods:
 
 ```ts
-import { SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { SodaQuery } from "jsr:@j3lte/soda";
 
 const DOMAIN = "data.cityofnewyork.us";
 const DATASET = "erm2-nwe9";
@@ -82,7 +87,7 @@ const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
 You can also use the SQL Builder to create your queries:
 
 ```ts
-import { Order, SodaQuery, Where } from "https://deno.land/x/soda/mod.ts";
+import { Order, SodaQuery, Where } from "jsr:@j3lte/soda";
 
 const DOMAIN = "data.cityofnewyork.us";
 const DATASET = "erm2-nwe9";
@@ -107,7 +112,7 @@ const { data, error } = await new SodaQuery(DOMAIN).withDataset(DATASET)
 You can create a new SodaQuery instance by passing a domain and optionally an authOptions object and an options object.
 
 ```ts
-import { createQueryWithDataset, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { createQueryWithDataset, SodaQuery } from "jsr:@j3lte/soda";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 // Same thing:
@@ -124,7 +129,7 @@ const query = createQueryWithDataset("data.organization.com", "dataset-id");
 A `Select` object can be used to transform the data returned by the query.
 
 ```ts
-import { Select, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { Select, SodaQuery } from "jsr:@j3lte/soda";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 
@@ -148,14 +153,14 @@ Select("column_name").avg();
 Select("column_name").sum();
 ```
 
-See all methods in [`<SelectImpl>`](https://deno.land/x/soda/mod.ts?s=SelectImpl) interface.
+See all methods in [`<SelectImpl>`](https://jsr.io/@j3lte/soda/doc/~/SelectImpl) interface.
 
 ### Where
 
 A `Where` object can be used to filter the data returned by the query. It uses static methods to create the `Where` object.
 
 ```ts
-import { SodaQuery, Where } from "https://deno.land/x/soda/mod.ts";
+import { SodaQuery, Where } from "jsr:@j3lte/soda";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 
@@ -181,7 +186,7 @@ Where.and(
 );
 ```
 
-See all methods in [`<Where>`](https://deno.land/x/soda/mod.ts?s=Where) interface.
+See all methods in [`<Where>`](https://jsr.io/@j3lte/soda/doc/~/Where) interface.
 
 ### Field
 
@@ -212,7 +217,7 @@ DataTypes:
 These Datatypes can be used to define your fields:
 
 ```ts
-import { Field, DataType } from "https://deno.land/x/soda/mod.ts";
+import { Field, DataType } from "jsr:@j3lte/soda";
 
 // Just a field, will be of type FieldImpl<DataType.Unknown>
 const field = Field("column_name");
@@ -224,7 +229,7 @@ const field = Field("column_name", DataType.Text);
 If you define your fields like that instead of using strings, you can use the `Select` and `Where` methods with type safety:
 
 ```ts
-import { Select, SodaQuery, Field, Where } from "https://deno.land/x/soda/mod.ts";
+import { Select, SodaQuery, Field, Where } from "jsr:@j3lte/soda";
 
 const query = new SodaQuery("data.organization.com").withDataset("dataset-id");
 
@@ -244,7 +249,7 @@ query.select(
 A `Order` object can be used to order the data returned by the query.
 
 ```ts
-import { Order, SodaQuery } from "https://deno.land/x/soda/mod.ts";
+import { Order, SodaQuery } from "jsr:@j3lte/soda";
 
 const query = new SodaQuery("...");
 
