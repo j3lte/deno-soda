@@ -1,4 +1,4 @@
-import { emptyDir } from "../dev_deps.ts";
+import { emptyDir } from "@std/fs";
 
 const watcher = Deno.watchFs([
   "./src/",

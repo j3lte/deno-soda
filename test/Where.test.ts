@@ -1,4 +1,4 @@
-import { assertEquals } from "../dev_deps.ts";
+import { assertEquals } from "@std/assert";
 import { Where } from "../mod.ts";
 
 Deno.test("Where.constructor", () => {

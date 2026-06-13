@@ -1,6 +1,6 @@
 // import type { Field } from "../src/types.ts";
 
-import { assertEquals } from "../dev_deps.ts";
+import { assertEquals } from "@std/assert";
 import { Field, getFieldName, testFieldImpl } from "../src/Field.ts";
 import { DataType } from "../src/types.ts";
 

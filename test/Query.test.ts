@@ -1,4 +1,4 @@
-import { assertEquals, assertNotEquals, assertThrows } from "../dev_deps.ts";
+import { assertEquals, assertNotEquals, assertThrows } from "@std/assert";
 import { mockFetch, unMockFetch } from "./util.ts";
 import { createQueryWithDataset, SodaQuery } from "../src/Query.ts";
 import { Order } from "../src/Order.ts";

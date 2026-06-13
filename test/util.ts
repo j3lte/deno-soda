@@ -1,4 +1,4 @@
-import { crypto } from "../dev_deps.ts";
+import { crypto } from "@std/crypto";
 
 const createHash = (buf: ArrayBuffer): Promise<string> => {
   const hash = crypto.subtle.digest("SHA-256", buf).then((hash) =>

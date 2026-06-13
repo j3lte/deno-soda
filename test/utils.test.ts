@@ -1,4 +1,4 @@
-import { assertEquals, assertMatch, assertThrows } from "../dev_deps.ts";
+import { assertEquals, assertMatch, assertThrows } from "@std/assert";
 import { addExpr, expr, handleLiteral } from "../src/utils/expr.ts";
 import { replaceParams } from "../src/utils/param.ts";
 import { toQS } from "../src/utils/qs.ts";
