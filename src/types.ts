@@ -35,8 +35,10 @@ export enum DataType {
   _Unknown = "_unknown",
 }
 
+/** A {@link FieldObject} of any {@link DataType}. */
 export type FieldImpl = FieldObject<DataType>;
 
+/** Options for a {@link SodaQuery}. */
 export interface Options {
   /** Strict mode. If enabled, this prevents the Query from changing the dataset ID after it has been set once */
   strict?: boolean;
@@ -56,6 +58,7 @@ export interface ExtraDataFields {
   ":updated_at"?: string;
 }
 
+/** Authentication options for a {@link SodaQuery} (app token, Basic auth or OAuth). */
 export interface AuthOpts {
   /**
    * API token
@@ -109,5 +112,8 @@ export interface AuthOpts {
 //   | Field<DataType.RowIdentifier>
 //   | Field<DataType._Unknown>;
 
+/** A serialized query as a map of SoQL parameter names to values. */
 export type QueryObj = Record<string, string | number | boolean>;
+
+/** The resolved result of a request: an `error`, HTTP `status` and `data`. */
 export type DataResponse<T> = Promise<{ error: Error | null; status: number; data: T }>;

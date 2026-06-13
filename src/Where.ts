@@ -9,6 +9,13 @@ import type { DataType } from "./types.ts";
 
 type BasicType = Exclude<SupportTypeElement, null | undefined | boolean>;
 
+/**
+ * A SoQL `WHERE` clause fragment.
+ *
+ * Build instances through the static helpers ({@link Where.eq}, {@link Where.and},
+ * {@link Where.like}, ...) rather than the constructor, then read the resulting
+ * SoQL string via {@link Where.value}.
+ */
 export class Where {
   private expr: string;
   private params: SupportTypeElement[];
@@ -18,18 +25,29 @@ export class Where {
     this.params = params;
   }
 
+  /** The clause rendered as a SoQL string (alias for {@link toString}). */
   get value(): string {
     return this.toString();
   }
 
+  /** Render the clause as a SoQL string with its parameters substituted. */
   toString(): string {
     return replaceParams(this.expr, this.params);
   }
 
+  /**
+   * Create a raw clause from a SoQL expression with `?`/`??` placeholders.
+   *
+   * @param expr Expression with `??` (identifier) and `?` (value) placeholders
+   * @param params Values substituted into the placeholders
+   */
   static expr(expr: string, ...params: SupportTypeElement[]): Where {
     return new Where(expr, params);
   }
 
+  /**
+   * Field equals value (`field = value`). A `null` value becomes `IS NULL`.
+   */
   static eq(field: string | FieldImpl, value: any): Where {
     if (value === null) {
       return this.isNull(field);
@@ -38,14 +56,16 @@ export class Where {
   }
 
   /**
-   * eq from object
-   * @param data
+   * Build an `AND` of `field = value` conditions from an object.
+   *
+   * @param data Map of field name to value
    */
   static from(data: Record<string, SupportTypeElement>): Where {
     const conditions = Object.keys(data).map((key) => this.eq(key, data[key]));
     return this.and(...conditions);
   }
 
+  /** Field greater than value (`field > value`). */
   static gt(
     field: string | FieldImpl,
     value: BasicType,
@@ -53,6 +73,7 @@ export class Where {
     return this.expr("?? > ?", getFieldName(field), value);
   }
 
+  /** Field greater than or equal to value (`field >= value`). */
   static gte(
     field: string | FieldImpl,
     value: BasicType,
@@ -60,6 +81,7 @@ export class Where {
     return this.expr("?? >= ?", getFieldName(field), value);
   }
 
+  /** Field less than value (`field < value`). */
   static lt(
     field: string | FieldImpl,
     value: BasicType,
@@ -67,6 +89,7 @@ export class Where {
     return this.expr("?? < ?", getFieldName(field), value);
   }
 
+  /** Field less than or equal to value (`field <= value`). */
   static lte(
     field: string | FieldImpl,
     value: BasicType,
@@ -74,6 +97,10 @@ export class Where {
     return this.expr("?? <= ?", getFieldName(field), value);
   }
 
+  /**
+   * Field not equal to value (`field != value`). A `null` value becomes
+   * `IS NOT NULL`.
+   */
   static ne(field: string | FieldImpl, value: SupportTypeElement): Where {
     if (value === null) {
       return this.isNotNull(field);
@@ -81,28 +108,34 @@ export class Where {
     return this.expr("?? != ?", getFieldName(field), value);
   }
 
+  /** Field is null (`field IS NULL`). */
   static isNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NULL", getFieldName(field));
   }
 
+  /** Field is not null (`field IS NOT NULL`). */
   static isNotNull(field: string | FieldImpl): Where {
     return this.expr("?? IS NOT NULL", getFieldName(field));
   }
 
+  /** Field is one of the given values (`field in (...)`). */
   static in(field: string | FieldImpl, ...values: any[]): Where {
     const params = values.length > 1 ? values : values[0];
     return this.expr("?? in ?", getFieldName(field), params);
   }
 
+  /** Field is none of the given values (`field not in (...)`). */
   static notIn(field: string | FieldImpl, ...values: any[]): Where {
     const params: any[] = values.length > 1 ? values : values[0];
     return this.expr("?? not in ?", getFieldName(field), params as any);
   }
 
+  /** Field matches a SoQL `LIKE` pattern. */
   static like(field: string | FieldImpl, value: any): Where {
     return this.expr("?? like ?", getFieldName(field), value);
   }
 
+  /** Field does not match a SoQL `LIKE` pattern. */
   static notLike(field: string | FieldImpl, value: any): Where {
     return this.expr("?? not like ?", getFieldName(field), value);
   }
@@ -138,6 +171,15 @@ export class Where {
     );
   }
 
+  /**
+   * Select records where the value of a field is **not** between two values.
+   *
+   * Works with Number, Floating timestamp, Fixed timestamp and Text.
+   *
+   * @param field field name or Field instance
+   * @param startValue start value
+   * @param endValue end value
+   */
   static notBetween(
     field:
       | string
@@ -156,6 +198,13 @@ export class Where {
     );
   }
 
+  /**
+   * Fluent builder bound to a single field, exposing the comparison helpers
+   * (`eq`, `gt`, `like`, `between`, `withinBox`, ...) without repeating the
+   * field name.
+   *
+   * @param name Field name or {@link FieldImpl} instance
+   */
   static field(name: string | FieldImpl): {
     gt: (value: BasicType) => Where;
     gte: (value: BasicType) => Where;
@@ -201,6 +250,7 @@ export class Where {
     };
   }
 
+  /** Combine clauses with `AND`. Nullish clauses are ignored. */
   static and(...expr: (null | undefined | Where)[]): Where {
     const sql = `(${
       expr
@@ -211,6 +261,7 @@ export class Where {
     return new Where(sql, []);
   }
 
+  /** Combine clauses with `OR`. Nullish clauses are ignored. */
   static or(...expr: (null | undefined | Where)[]): Where {
     const sql = `(${
       expr

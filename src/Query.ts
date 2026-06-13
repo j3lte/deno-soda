@@ -13,6 +13,14 @@ import { toQS } from "./utils/qs.ts";
 import { SelectImpl } from "./SelectImpl.ts";
 import { Order } from "./Order.ts";
 import { addExpr, expr } from "./utils/expr.ts";
+
+/**
+ * Chainable builder and HTTP client for the Socrata Open Data API (SODA).
+ *
+ * Configure the query with the fluent methods ({@link select}, {@link where},
+ * {@link orderBy}, ...) then run it with {@link execute}, {@link single} or
+ * {@link executeGeoJSON}. The type parameter `T` describes the shape of a row.
+ */
 export class SodaQuery<T> {
   #domain: string;
   #datasetId: string | null = null;
@@ -285,6 +293,10 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Add fields to the `$select` clause. Accepts plain strings, {@link SelectImpl}
+   * objects or {@link FieldImpl} instances.
+   */
   select(...selects: Array<string | SelectImpl | FieldImpl>): this {
     const selectArray = selects.map((
       s,
@@ -293,22 +305,34 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Add conditions to the `$where` clause. Accepts strings, `{field: value}`
+   * objects or {@link Where} instances; multiple conditions are AND-ed together.
+   */
   where(...where: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#where, where);
     return this;
   }
 
+  /**
+   * Add conditions to the `$having` clause (requires a {@link groupBy}).
+   */
   having(...having: Array<string | Record<string, string> | Where>): this {
     addExpr(this.#having, having);
     return this;
   }
 
+  /** Add fields to the `$group` clause. */
   groupBy(...group: Array<string | FieldImpl>): this {
     const groupArray = group.map((g) => g.toString());
     this.#group.push(...groupArray);
     return this;
   }
 
+  /**
+   * Add fields to the `$order` clause. Strings without an explicit direction
+   * default to `ASC`; {@link Order} instances carry their own direction.
+   */
   orderBy(...order: Array<string | Order>): this {
     const orders = order.map((order: string | Order) =>
       order instanceof Order
@@ -319,11 +343,13 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /** Set the `$offset` (number of rows to skip). */
   offset(offset: number): this {
     this.#offset = offset;
     return this;
   }
 
+  /** Set the `$limit` (maximum number of rows to return). */
   limit(limit: number): this {
     this.#limit = limit;
     return this;
@@ -348,6 +374,7 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /** Reset all clauses, returning the query to an empty state. */
   clear(): this {
     this.#simple = null;
     this.#soql = null;
@@ -372,6 +399,12 @@ export class SodaQuery<T> {
     return this;
   }
 
+  /**
+   * Run the query and return all matching rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   */
   execute(
     queryID?: string,
     signal?: AbortSignal,
@@ -384,6 +417,12 @@ export class SodaQuery<T> {
     }));
   }
 
+  /**
+   * Run the query with `$limit=1` and return the first row (or `null`).
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   */
   single(
     queryID?: string,
     signal?: AbortSignal,
@@ -402,6 +441,13 @@ export class SodaQuery<T> {
     });
   }
 
+  /**
+   * Run the query against the `.geojson` endpoint. Falls back to an empty
+   * `FeatureCollection` when the response is empty.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   */
   executeGeoJSON(
     queryID?: string,
     signal?: AbortSignal,
@@ -413,12 +459,25 @@ export class SodaQuery<T> {
     }));
   }
 
+  /**
+   * Fetch the dataset's metadata from the `/api/views` endpoint.
+   *
+   * @param signal Optional abort signal
+   */
   getMetaData(signal?: AbortSignal): DataResponse<unknown> {
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url, { signal });
   }
 }
 
+/**
+ * Create a {@link SodaQuery} with its dataset already set.
+ *
+ * @param domain The Socrata domain to query
+ * @param dataSetId The dataset (resource) ID
+ * @param authOpts Optional authentication options
+ * @param options Optional query options
+ */
 export const createQueryWithDataset = <T>(
   domain: string,
   dataSetId: string,

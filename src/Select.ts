@@ -127,6 +127,14 @@ export function SelectRegrSlope(
   );
 }
 
+/**
+ * Create a {@link SelectImpl} for a field, used to build a `$select` clause.
+ *
+ * Pass nothing (or `"*"`) to select all columns, a string for a plain field, or
+ * a typed {@link FieldObject} to enable type-checked aggregate/scalar functions.
+ *
+ * @param field Field name or {@link FieldImpl} instance (omit for all fields)
+ */
 function Select(): SelectImpl<DataType._Unknown>;
 function Select<T extends string>(field: T): SelectImpl<DataType._Unknown>;
 function Select<T extends FieldImpl>(field: T): SelectImpl<T["type"]>;

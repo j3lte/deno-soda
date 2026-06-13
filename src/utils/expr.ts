@@ -33,6 +33,7 @@ function or(...classes: string[]): string {
   return classes.map((c) => `(${c})`).join(" or ");
 }
 
+/** Helpers to combine raw SoQL expression strings with `and` / `or`. */
 export const expr = {
   and,
   or,

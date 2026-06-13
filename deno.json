@@ -20,6 +20,7 @@
     "clean": "rm -r ./coverage",
     "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
     "setVersion": "deno run --allow-read --allow-write ./scripts/set-version.ts",
+    "docCoverage": "deno run --allow-run ./scripts/doc-coverage.ts",
     "npm": "deno run -A ./scripts/build-npm.ts"
   },
   "fmt": {
