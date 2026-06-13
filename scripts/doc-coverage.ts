@@ -9,6 +9,9 @@
 //
 // Exits non-zero when coverage is below the threshold (useful in CI).
 
+// The shape comes from `deno doc --json`, which is untyped here.
+// deno-lint-ignore-file no-explicit-any
+
 const THRESHOLD_DEFAULT = 80;
 
 interface Entry {
@@ -17,10 +20,8 @@ interface Entry {
   documented: boolean;
 }
 
-// deno-lint-ignore no-explicit-any
 const isDocumented = (node: any): boolean => ((node?.jsDoc?.doc ?? "").trim().length > 0);
 
-// deno-lint-ignore no-explicit-any
 function collect(symbols: any[]): Entry[] {
   const entries: Entry[] = [];
 
@@ -32,7 +33,6 @@ function collect(symbols: any[]): Entry[] {
     entries.push({ name: symbol.name, kind, documented: isDocumented(decl) });
 
     if (kind === "class") {
-      // deno-lint-ignore no-explicit-any
       for (const m of decl.def?.methods ?? []) {
         if ((m.accessibility ?? "public") !== "public") continue;
         entries.push({
@@ -41,7 +41,6 @@ function collect(symbols: any[]): Entry[] {
           documented: isDocumented(m),
         });
       }
-      // deno-lint-ignore no-explicit-any
       for (const p of decl.def?.properties ?? []) {
         if ((p.accessibility ?? "public") !== "public") continue;
         entries.push({
@@ -51,7 +50,6 @@ function collect(symbols: any[]): Entry[] {
         });
       }
     } else if (kind === "interface") {
-      // deno-lint-ignore no-explicit-any
       for (const m of decl.def?.methods ?? []) {
         entries.push({
           name: `${symbol.name}.${m.name}`,
@@ -59,7 +57,6 @@ function collect(symbols: any[]): Entry[] {
           documented: isDocumented(m),
         });
       }
-      // deno-lint-ignore no-explicit-any
       for (const p of decl.def?.properties ?? []) {
         entries.push({
           name: `${symbol.name}.${p.name}`,
@@ -68,7 +65,6 @@ function collect(symbols: any[]): Entry[] {
         });
       }
     } else if (kind === "enum") {
-      // deno-lint-ignore no-explicit-any
       for (const member of decl.def?.members ?? []) {
         entries.push({
           name: `${symbol.name}.${member.name}`,
@@ -110,10 +106,7 @@ async function main(): Promise<void> {
   }
 
   const doc = JSON.parse(new TextDecoder().decode(stdout));
-  const entries = Object.values(doc.nodes ?? {}).flatMap((node) =>
-    // deno-lint-ignore no-explicit-any
-    collect((node as any).symbols)
-  );
+  const entries = Object.values(doc.nodes ?? {}).flatMap((node) => collect((node as any).symbols));
 
   const total = entries.length;
   const documented = entries.filter((e) => e.documented).length;
