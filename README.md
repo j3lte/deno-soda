@@ -38,7 +38,7 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
 - Build complex queries with ease, in a functional way
 - SQL Builder, inspired by [sql-builder](https://deno.land/x/sql_builder)
 
-> _**Note:** This client is only for fetching data from Socrata Open Data API. It does not support creating, updating or deleting data._
+> _**Note:** This client targets the Socrata **SODA 2.1** endpoints (`/resource/{id}.json`). It is only for fetching data from the Socrata Open Data API — it does not support creating, updating or deleting data, nor the SODA 3.0 (`/api/v3/...`) endpoints._
 
 ## Installation
 
