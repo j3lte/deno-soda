@@ -487,6 +487,126 @@ export class SodaQuery<T> {
     }));
   }
 
+  private async fetchPage(
+    offset: number,
+    pageSize: number,
+    signal?: AbortSignal,
+  ): Promise<Array<T & ExtraDataFields>> {
+    const queryObj = this.buildQuery();
+    queryObj.$limit = pageSize;
+    queryObj.$offset = offset;
+    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+    const res = await this.requestData<Array<T & ExtraDataFields>>(url, { signal });
+    if (res.error) {
+      throw res.error;
+    }
+    return res.data ?? [];
+  }
+
+  /**
+   * Asynchronously iterate the result set one page at a time, transparently
+   * advancing `$offset`. Each yielded value is a page of rows.
+   *
+   * For a stable full scan, set a deterministic order first
+   * (e.g. `orderBy(":id")`); the query's own `limit`/`offset` are ignored here.
+   *
+   * @param opts `pageSize` (default 1000) and an optional abort `signal`
+   */
+  async *pages(
+    opts: { pageSize?: number; signal?: AbortSignal } = {},
+  ): AsyncGenerator<Array<T & ExtraDataFields>> {
+    const pageSize = opts.pageSize ?? 1000;
+    let offset = 0;
+    while (true) {
+      const rows = await this.fetchPage(offset, pageSize, opts.signal);
+      if (rows.length > 0) {
+        yield rows;
+      }
+      if (rows.length < pageSize) {
+        break;
+      }
+      offset += pageSize;
+    }
+  }
+
+  /**
+   * Asynchronously iterate the result set one row at a time (see {@link pages}).
+   *
+   * @param opts `pageSize` (default 1000) and an optional abort `signal`
+   */
+  async *rows(
+    opts: { pageSize?: number; signal?: AbortSignal } = {},
+  ): AsyncGenerator<T & ExtraDataFields> {
+    for await (const page of this.pages(opts)) {
+      for (const row of page) {
+        yield row;
+      }
+    }
+  }
+
+  /**
+   * Eagerly page through the entire result set and return every row in one
+   * array (see {@link pages}). Returns a {@link DataResponse} like {@link execute}.
+   *
+   * @param opts `pageSize` (default 1000), an optional `max` row cap, and an
+   *   optional abort `signal`
+   */
+  async executeAll(
+    opts: { pageSize?: number; max?: number; signal?: AbortSignal } = {},
+  ): DataResponse<Array<T & ExtraDataFields>> {
+    const all: Array<T & ExtraDataFields> = [];
+    try {
+      for await (const page of this.pages(opts)) {
+        all.push(...page);
+        if (opts.max !== undefined && all.length >= opts.max) {
+          return { error: null, status: 200, data: all.slice(0, opts.max) };
+        }
+      }
+      return { error: null, status: 200, data: all };
+    } catch (err) {
+      return {
+        error: err instanceof Error ? err : new Error(String(err)),
+        status: 0,
+        data: [],
+      };
+    }
+  }
+
+  /**
+   * Count the rows that match the current `where` / search filters.
+   *
+   * Emits `$select=count(*)` and ignores any `select`, `group` or `order` set on
+   * the query, so the result is always the total number of matching rows.
+   *
+   * @param queryID Optional ID of a query stored via {@link prepare}
+   * @param signal Optional abort signal
+   */
+  count(queryID?: string, signal?: AbortSignal): DataResponse<number> {
+    let base: QueryObj;
+    if (queryID) {
+      if (!this.#queryMap.has(queryID)) {
+        throw new Error(`No query with ID ${queryID} found!`);
+      }
+      base = this.#queryMap.get(queryID) as QueryObj;
+    } else {
+      base = this.buildQuery();
+    }
+
+    const queryObj: QueryObj = { $select: "count(*)" };
+    if (base.$where !== undefined) {
+      queryObj.$where = base.$where;
+    }
+    if (base.q !== undefined) {
+      queryObj.q = base.q;
+    }
+
+    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+    return this.requestData<Array<{ count: string }>>(url, { signal }).then((res) => ({
+      ...res,
+      data: res.data?.[0]?.count !== undefined ? Number(res.data[0].count) : 0,
+    }));
+  }
+
   /**
    * Fetch the dataset's metadata from the `/api/views` endpoint.
    *

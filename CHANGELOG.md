@@ -4,6 +4,11 @@
 
 ### Added
 
+- `SodaQuery.pages()` / `rows()` — async iterators that page through the full
+  result set (default page size 1000).
+- `SodaQuery.executeAll(opts?)` — collect every page into one array (optional
+  `max` cap).
+- `SodaQuery.count()` — total count of rows matching the current filters.
 - `SodaQuery.executeCSV()` — run the query against the `.csv` endpoint and
   return the raw CSV string.
 - `Where.withinPolygon(field, wkt)` — `within_polygon` geospatial filter.
