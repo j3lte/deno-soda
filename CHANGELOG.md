@@ -31,8 +31,17 @@
 - **`limit(0)` / `offset(0)`** are emitted instead of being dropped.
 - **`single(queryID)`** applies the single-row limit to a stored query.
 
+### Removed
+
+- `SelectImpl.pad()` (and the `pad_left`/`pad_right` `SelectFunction` members) —
+  these return HTTP 400 on SODA 2.1 endpoints and are not documented by Socrata.
+
 ### Changed
 
+- `Where.withinBox` / `Where.withinCircle` now accept Point / Line / Polygon /
+  MultiPoint / MultiLine / MultiPolygon field objects, not just `Location`.
+- `SelectImpl.abs()` and `length()` are documented as undocumented-but-working on
+  SODA 2.1 (Socrata does not list them).
 - The fixes above change the emitted SoQL for some inputs; output differs from
   prior releases for affected queries.
 

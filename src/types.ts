@@ -1,37 +1,118 @@
 import type { FieldObject } from "./Field.ts";
 /**
- * The different types of data that can be used in a field
+ * The Socrata data types a field can have.
+ *
+ * Docs: https://dev.socrata.com/docs/datatypes/
  */
 export enum DataType {
-  /** Type: **Checkbox**, available in 2.0 and 2.1 */
+  /**
+   * A boolean `true` / `false` value.
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/checkbox
+   */
   Checkbox = "checkbox",
-  /** Type: **Fixed Timestamp**, available in 2.0 and 2.1 */
+  /**
+   * An absolute instant in time (date + time, in UTC).
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/fixed_timestamp
+   */
   FixedTimestamp = "fixed_timestamp",
-  /** Type: **Floating Timestamp**, available in 2.0 and 2.1 */
+  /**
+   * A date and time with no timezone (wall-clock).
+   *
+   * Available in 2.0, 2.1.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/floating_timestamp
+   */
   FloatingTimestamp = "floating_timestamp",
-  /** Type: **Line**, available in 2.1 */
+  /**
+   * A geospatial line: an ordered series of connected points (WKT `LINESTRING`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/line
+   */
   Line = "line",
-  /** Type: **Location**, available in 2.0 and 2.1 */
+  /**
+   * A legacy geo type holding latitude/longitude and an optional address.
+   * Superseded by {@link Point}.
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/location
+   */
   Location = "location",
-  /** Type: **MultiLine**, available in 2.1 */
+  /**
+   * A collection of lines (WKT `MULTILINESTRING`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/multiline
+   */
   MultiLine = "multiline",
-  /** Type: **MultiPoint**, available in 2.1 */
+  /**
+   * A collection of points (WKT `MULTIPOINT`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/multipoint
+   */
   MultiPoint = "multipoint",
-  /** Type: **MultiPolygon**, available in 2.1 */
+  /**
+   * A collection of polygons (WKT `MULTIPOLYGON`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/multipolygon
+   */
   MultiPolygon = "multipolygon",
-  /** Type: **Number**, available in 2.0 and 2.1 */
+  /**
+   * A numeric value (integer or decimal).
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/number
+   */
   Number = "number",
-  /** Type: **Point**, available in 2.1 */
+  /**
+   * A single geospatial coordinate, longitude/latitude (WKT `POINT`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/point
+   */
   Point = "point",
-  /** Type: **Polygon**, available in 2.1 */
+  /**
+   * A geospatial area enclosed by a ring of points (WKT `POLYGON`).
+   *
+   * Available in 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/polygon
+   */
   Polygon = "polygon",
-  /** Type: **Text**, available in 2.0 and 2.1 */
+  /**
+   * A free-form string value.
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/text
+   */
   Text = "text",
-  /** Type: **URL**, available in 2.0 and 2.1 */
+  /**
+   * A hyperlink, with an optional description.
+   *
+   * Available in 2.0, 2.1, 3.0.
+   *
+   * @see https://dev.socrata.com/docs/datatypes/url
+   */
   URL = "url",
-  /** Type: **ROW Identifier**, special tag that is only used when retrieving IDs. Don't use */
+  /** **Row Identifier** — internal tag used only when retrieving `:id`. Don't use directly. */
   RowIdentifier = "row_identifier",
-  /** Type: **Unknown** */
+  /** **Unknown** — internal default; disables type checking on a field. */
   _Unknown = "_unknown",
 }
 

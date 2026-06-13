@@ -61,10 +61,6 @@ export enum SelectFunction {
   Min = "min",
   /** Number of vertices in a geospatial record. */
   NumberOfVertices = "num_points",
-  /** Left-pad a text value. */
-  PadLeft = "pad_left",
-  /** Right-pad a text value. */
-  PadRight = "pad_right",
   /** Y-intercept of the linear least squares fit. */
   RegrIntercept = "regr_intercept",
   /** Square of the correlation coefficient (r²). */

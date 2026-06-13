@@ -107,7 +107,9 @@ export class SelectImpl<T = DataType> {
   }
 
   /**
-   * Works on fields of type Number
+   * Absolute value. Works on fields of type Number.
+   *
+   * Note: not listed in the Socrata docs, but works on 2.1 endpoints.
    */
   abs(): SelectImpl<DataType.Number> {
     return this.setFn(SelectFunction.Abs, "Can only use ABS on Number fields", DataType.Number);
@@ -450,7 +452,9 @@ export class SelectImpl<T = DataType> {
   }
 
   /**
-   * Works on fields of type Text
+   * Length of the text. Works on fields of type Text.
+   *
+   * Note: not listed in the Socrata docs, but works on 2.1 endpoints.
    */
   length(): SelectImpl<DataType.Text> {
     return this.setFn(
@@ -458,27 +462,6 @@ export class SelectImpl<T = DataType> {
       "Can only use LENGTH on Text fields",
       DataType.Text,
     );
-  }
-
-  /**
-   * Pad a text field to a given length with a pad string.
-   *
-   * Works on fields of type Text
-   *
-   * @param length Target length
-   * @param pad The string to pad with
-   * @param type Pad on the `LEFT` or `RIGHT`
-   */
-  pad(length: number, pad: string, type: "LEFT" | "RIGHT"): SelectImpl<DataType.Text> {
-    if (!testFieldImpl(this.fieldObj, DataType.Text)) {
-      throw new Error("Can only use PAD on Text fields");
-    }
-    if (type !== "LEFT" && type !== "RIGHT") {
-      throw new Error("Type must be either LEFT or RIGHT");
-    }
-    this.extraField = `${length}, '${pad}'`;
-    this.func = type === "LEFT" ? SelectFunction.PadLeft : SelectFunction.PadRight;
-    return this;
   }
 
   /**

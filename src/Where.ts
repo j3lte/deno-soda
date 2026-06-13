@@ -287,7 +287,15 @@ export class Where {
    * @param lonSE The longitude of the southeast corner of the box
    */
   static withinBox(
-    field: string | FieldObject<DataType.Location>,
+    field:
+      | string
+      | FieldObject<DataType.Location>
+      | FieldObject<DataType.Point>
+      | FieldObject<DataType.Line>
+      | FieldObject<DataType.Polygon>
+      | FieldObject<DataType.MultiPoint>
+      | FieldObject<DataType.MultiLine>
+      | FieldObject<DataType.MultiPolygon>,
     latNW: number,
     lonNW: number,
     latSE: number,
@@ -311,7 +319,15 @@ export class Where {
    * @param radius The radius of the circle in meters
    */
   static withinCircle(
-    field: string | FieldObject<DataType.Location>,
+    field:
+      | string
+      | FieldObject<DataType.Location>
+      | FieldObject<DataType.Point>
+      | FieldObject<DataType.Line>
+      | FieldObject<DataType.Polygon>
+      | FieldObject<DataType.MultiPoint>
+      | FieldObject<DataType.MultiLine>
+      | FieldObject<DataType.MultiPolygon>,
     lat: number,
     lon: number,
     radius: number,

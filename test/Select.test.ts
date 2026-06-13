@@ -162,15 +162,6 @@ Deno.test("Select (Text functions", () => {
   assertEquals(createSelect().length().value, "length(test)");
   assertThrows(() => createSelect(DataType.Number).length());
 
-  assertEquals(createSelect().pad(1, "a", "LEFT").value, "pad_left(test, 1, 'a')");
-  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "LEFT"));
-
-  assertEquals(createSelect().pad(1, "a", "RIGHT").value, "pad_right(test, 1, 'a')");
-  assertThrows(() => createSelect(DataType.Number).pad(1, "a", "RIGHT"));
-
-  // @ts-expect-error - testing invalid types
-  assertThrows(() => createSelect().pad(1, "a", "CENTER"));
-
   assertEquals(createSelect().unaccent().value, "unaccent(test)");
   assertThrows(() => createSelect(DataType.Number).unaccent());
 });
