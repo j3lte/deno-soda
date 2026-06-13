@@ -1,17 +1,24 @@
-name: Build NPM package (On Release)
+name: Release
 
 on:
-  release:
-    types:
-      - published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (x.y.z):"
+        required: true
 
 jobs:
   release:
-    name: Build NPM package (On Demand)
+    name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # push version bump + create release tag
+      id-token: write # JSR OIDC auth
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Setup Deno
         uses: denoland/setup-deno@v1
@@ -20,15 +27,38 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
-      - name: Run Deno dnt
-        run: deno task npm ${{ github.ref_name }}
+      - name: Set version in deno.json
+        run: deno task setVersion ${{ github.event.inputs.version }}
 
-      - name: Check Version
-        run: cat ./npm/package.json | jq .version
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "deno.json already at ${{ github.event.inputs.version }}, nothing to commit"
+          else
+            git commit -am "chore: release ${{ github.event.inputs.version }}"
+          fi
+          git push
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          gh release create ${{ github.event.inputs.version }}
+          --target ${{ github.ref_name }}
+          --title ${{ github.event.inputs.version }}
+          --generate-notes
+
+      - name: Publish to JSR
+        run: deno publish
+
+      - name: Build NPM package
+        run: deno task npm ${{ github.event.inputs.version }}
 
       - name: Publish to NPM
-        run: cd ./npm && yarn publish --verbose --access public --new-version ${{ github.ref_name }}
+        run: cd ./npm && yarn publish --verbose --access public --new-version ${{ github.event.inputs.version }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}

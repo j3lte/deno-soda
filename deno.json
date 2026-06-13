@@ -1,4 +1,8 @@
 {
+  "name": "@j3lte/soda",
+  "version": "0.4.5",
+  "license": "MIT",
+  "exports": "./mod.ts",
   "tasks": {
     "format": "deno fmt ./src/ ./test/",
     "lint": "deno lint ./src/ ./test/",
@@ -7,6 +11,7 @@
     "test:watch": "deno test --watch",
     "clean": "rm -r ./coverage",
     "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
+    "setVersion": "deno run --allow-read --allow-write ./scripts/set-version.ts",
     "npm": "deno run -A ./scripts/build-npm.ts"
   },
   "fmt": {
