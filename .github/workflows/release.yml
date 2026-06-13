@@ -59,6 +59,6 @@ jobs:
         run: deno task npm ${{ github.event.inputs.version }}
 
       - name: Publish to NPM
-        run: cd ./npm && yarn publish --verbose --access public --new-version ${{ github.event.inputs.version }}
+        run: cd ./npm && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
