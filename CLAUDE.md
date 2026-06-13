@@ -17,7 +17,7 @@ Deno tasks (defined in `deno.json`):
 - `deno task lint` — lint `src/` and `test/`
 - `deno task format` — format `src/` and `test/`
 - `deno task coverage` — emit `.coverage/coverage.lcov`
-- `deno task localTest` — watch-mode runner (`scripts/runTest.ts`) that builds an HTML coverage report via `genhtml` (needs `lcov` installed)
+- `deno task local-test` — watch-mode runner (`scripts/run-test.ts`) that builds an HTML coverage report via `genhtml` (needs `lcov` installed)
 - `deno task npm <version>` — build the NPM package into `npm/` via dnt
 
 CI (`.github/workflows/main.yml`) runs `deno fmt --check`, `deno task lint`, and `deno task test` on Linux/Windows/macOS. Lint enforces two non-default rules: `ban-untagged-todo` and `explicit-function-return-type` — every function needs an explicit return type, and TODOs must be tagged.

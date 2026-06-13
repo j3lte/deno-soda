@@ -2,10 +2,10 @@
 // its "has docs for most symbols" score (target: >= 80%).
 //
 // Usage:
-//   deno task docCoverage              # check ./mod.ts against the 80% threshold
-//   deno task docCoverage --list       # also print every undocumented symbol
-//   deno task docCoverage --min 90     # use a custom threshold
-//   deno task docCoverage ./mod.ts     # check a specific entry point
+//   deno task doc-coverage             # check ./mod.ts against the 80% threshold
+//   deno task doc-coverage --list      # also print every undocumented symbol
+//   deno task doc-coverage --min 90    # use a custom threshold
+//   deno task doc-coverage ./mod.ts    # check a specific entry point
 //
 // Exits non-zero when coverage is below the threshold (useful in CI).
 

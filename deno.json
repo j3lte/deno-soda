@@ -1,6 +1,6 @@
 {
   "name": "@j3lte/soda",
-  "version": "0.4.8",
+  "version": "0.4.6",
   "license": "MIT",
   "exports": "./mod.ts",
   "publish": {
@@ -18,9 +18,9 @@
     "coverage": "deno coverage .coverage --lcov --exclude=/test/ --exclude=/scripts/ > ./.coverage/coverage.lcov",
     "test:watch": "deno test --watch",
     "clean": "rm -r ./coverage",
-    "localTest": "deno run --allow-read --allow-write --allow-run ./scripts/runTest.ts",
-    "setVersion": "deno run --allow-read --allow-write ./scripts/set-version.ts",
-    "docCoverage": "deno run --allow-run ./scripts/doc-coverage.ts",
+    "local-test": "deno run --allow-read --allow-write --allow-run ./scripts/run-test.ts",
+    "set-version": "deno run --allow-read --allow-write ./scripts/set-version.ts",
+    "doc-coverage": "deno run --allow-run ./scripts/doc-coverage.ts",
     "npm": "deno run -A ./scripts/build-npm.ts"
   },
   "fmt": {
