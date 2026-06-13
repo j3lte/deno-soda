@@ -1,5 +1,5 @@
-import { assertEquals, assertNotEquals, assertThrows } from "../dev_deps.ts";
-import { mockFetch, unMockFetch } from "./util.ts";
+import { assertEquals, assertNotEquals, assertRejects, assertThrows } from "@std/assert";
+import { type Stub, stub } from "@std/testing/mock";
 import { createQueryWithDataset, SodaQuery } from "../src/Query.ts";
 import { Order } from "../src/Order.ts";
 import { Where } from "../src/Where.ts";
@@ -10,15 +10,33 @@ import type { AuthOpts } from "../src/types.ts";
 const createSampleQuery = <T>(authOpts?: AuthOpts) =>
   createQueryWithDataset<T>("test.example.com", "test", authOpts);
 
-const createRequest = (url = "https://test.example.com/resource/test.json") =>
-  new Request(url, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    },
-    redirect: "follow",
+const BASE = "https://test.example.com/resource/test.json";
+
+const ok = (body: unknown, init?: ResponseInit): Response =>
+  new Response(JSON.stringify(body), { status: 200, ...init });
+
+/** Map of request URL -> Response (or a factory for a fresh Response). */
+type FetchRoutes = Record<string, Response | (() => Response)>;
+
+/**
+ * Stub `globalThis.fetch` with a URL-keyed route table.
+ *
+ * Returns the {@link Stub}, so callers can inspect `.calls` for assertions.
+ * Use with `using` for automatic restore (even if the test throws). Requests to
+ * a URL not in `routes` reject, mirroring a real network failure.
+ */
+function stubFetch(
+  routes: FetchRoutes,
+): Stub<typeof globalThis, Parameters<typeof fetch>, ReturnType<typeof fetch>> {
+  return stub(globalThis, "fetch", (input: Request | URL | string): Promise<Response> => {
+    const url = input instanceof Request ? input.url : input.toString();
+    const route = routes[url];
+    if (!route) {
+      return Promise.reject(new Error(`Unmocked request: ${url}`));
+    }
+    return Promise.resolve((typeof route === "function" ? route() : route).clone());
   });
+}
 
 Deno.test("SodaQuery (empty)", () => {
   const query = new SodaQuery("test.example.com");
@@ -111,133 +129,100 @@ Deno.test("SodaQuery QueryObj", () => {
   assertEquals(query.buildQuery().$where, "(`field1` > 1) and (`field2` < 2)");
 });
 
-Deno.test("SodaQuery (request)", async () => {
+Deno.test("SodaQuery execute + single + response headers", async () => {
   const query = createSampleQuery<{ test: number }>();
-
-  const res = new Response(JSON.stringify([{ test: 1 }]), {
-    status: 200,
-    headers: {
-      "Last-Modified": "Mon, 01 Jan 2001 00:00:00 GMT",
-      "ETag": "test",
-    },
+  using _fetch = stubFetch({
+    [BASE]: ok([{ test: 1 }], {
+      headers: { "Last-Modified": "Mon, 01 Jan 2001 00:00:00 GMT", "ETag": "test" },
+    }),
+    [`${BASE}?$limit=1`]: ok([{ test: 1 }]),
   });
 
-  await mockFetch(
-    createRequest(),
-    res,
-  );
-  await mockFetch(
-    createRequest("https://test.example.com/resource/test.json?$limit=1"),
-    res,
-  );
-
   const d = await query.execute();
-  const single = await query.single();
-  assertEquals(d.data[0]?.test, 1);
-  assertEquals(single.data.test, 1);
+
+  // headers reflect the most recent response, so assert before single() runs.
   assertEquals(query.headers.lastModified, "Mon, 01 Jan 2001 00:00:00 GMT");
   assertEquals(query.headers.etag, "test");
 
-  const emptyQuery = createSampleQuery<{ test: number }>();
-  await mockFetch(
-    createRequest("https://test.example.com/resource/test.json?$limit=1"),
-    new Response(JSON.stringify([]), {
-      status: 200,
-    }),
-  );
+  const single = await query.single();
 
-  const emptySingle = await emptyQuery.single();
-  assertEquals(emptySingle.data, null);
+  assertEquals(d.data[0]?.test, 1);
+  assertEquals(single.data.test, 1);
+});
 
-  // With Access Token
-  const query2 = createSampleQuery<{ test: number }>({
-    accessToken: "test",
+Deno.test("SodaQuery single returns null when empty", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({ [`${BASE}?$limit=1`]: ok([]) });
+
+  assertEquals((await query.single()).data, null);
+});
+
+Deno.test("SodaQuery sends auth headers", async () => {
+  const cases: Array<[AuthOpts, string, string]> = [
+    [{ accessToken: "test" }, "Authorization", "OAuth test"],
+    [{ apiToken: "test" }, "X-App-Token", "test"],
+    [{ username: "test", password: "test" }, "Authorization", `Basic ${btoa("test:test")}`],
+  ];
+
+  for (const [auth, header, expected] of cases) {
+    using fetchStub = stubFetch({ [BASE]: ok([{ test: 1 }]) });
+
+    await createSampleQuery<{ test: number }>(auth).execute();
+
+    const [, init] = fetchStub.calls[0].args;
+    assertEquals((init?.headers as Record<string, string>)[header], expected);
+  }
+});
+
+Deno.test("SodaQuery returns error on non-OK response", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  using _fetch = stubFetch({
+    [BASE]: () => new Response(JSON.stringify({}), { status: 400, statusText: "Bad Request" }),
   });
-  const reqWithAuthToken = createRequest();
-  reqWithAuthToken.headers.append("Authorization", `OAuth test`);
 
-  await mockFetch(reqWithAuthToken, new Response(JSON.stringify([{ test: 1 }]), { status: 200 }));
+  const res = await query.execute();
 
-  await query2.execute();
+  assertNotEquals(res.error, null);
+  assertEquals(res.status, 400);
+  assertEquals(res.data.length, 0);
+});
 
-  // With App Token
-  const query3 = createSampleQuery<{ test: number }>({
-    apiToken: "test",
-  });
-  const reqWithAppToken = createRequest();
-  reqWithAppToken.headers.append("X-App-Token", "test");
+Deno.test("SodaQuery executeGeoJSON", async () => {
+  const GEO = "https://test.example.com/resource/test.geojson";
 
-  await mockFetch(reqWithAppToken, new Response(JSON.stringify([{ test: 1 }]), { status: 200 }));
+  {
+    using _fetch = stubFetch({ [GEO]: ok({ type: "FeatureCollection", features: [] }) });
+    const geojson = await createSampleQuery().executeGeoJSON();
+    assertEquals(geojson.error, null);
+    assertNotEquals(geojson.data, null);
+  }
 
-  await query3.execute();
+  {
+    // A null body falls back to an empty FeatureCollection.
+    using _fetch = stubFetch({ [GEO]: ok(null) });
+    const geojson = await createSampleQuery().executeGeoJSON();
+    assertEquals(geojson.error, null);
+    // deno-lint-ignore no-explicit-any
+    assertEquals((geojson.data as any).features.length, 0);
+  }
+});
 
-  // With Username and Password
-  const query4 = createSampleQuery<{ test: number }>({
-    username: "test",
-    password: "test",
-  });
-  const reqWithUsernamePassword = createRequest();
-  reqWithUsernamePassword.headers.append("Authorization", `Basic ${btoa("test:test")}`);
+Deno.test("SodaQuery getMetaData", async () => {
+  const query = createSampleQuery();
+  using _fetch = stubFetch({ "https://test.example.com/api/views/test": ok({}) });
 
-  await mockFetch(
-    reqWithUsernamePassword,
-    new Response(JSON.stringify([{ test: 1 }]), { status: 200 }),
-  );
+  const meta = await query.getMetaData();
 
-  await query4.execute();
+  assertEquals(meta.error, null);
+});
 
-  // Error
-  await mockFetch(
-    createRequest(),
-    new Response(JSON.stringify({}), {
-      status: 400,
-      statusText: "Bad Request",
-    }),
-  );
-  const errorQ = await query.execute();
+Deno.test("SodaQuery single rejects and restores limit", async () => {
+  const query = createSampleQuery<{ test: number }>().limit(5);
+  // Empty route table: any request rejects, driving single() into its catch.
+  using _fetch = stubFetch({});
 
-  assertNotEquals(errorQ.error, null);
-  assertEquals(errorQ.status, 400);
-  assertEquals(errorQ.data.length, 0);
+  await assertRejects(() => query.single());
 
-  // GeoJSON
-  const query5 = createSampleQuery<{ test: number }>();
-  const req = createRequest("https://test.example.com/resource/test.geojson");
-  await mockFetch(
-    req,
-    new Response(JSON.stringify({ type: "FeatureCollection", features: [] }), {
-      status: 200,
-    }),
-  );
-
-  const geojson = await query5.executeGeoJSON();
-  assertEquals(geojson.error, null);
-  assertNotEquals(geojson.data, null);
-
-  // GeoJSON
-  const query6 = createSampleQuery<{ test: number }>();
-  const reqEmpty = createRequest("https://test.example.com/resource/test.geojson");
-  await mockFetch(
-    reqEmpty,
-    new Response(JSON.stringify(null), {
-      status: 200,
-    }),
-  );
-
-  const geojsonEmpty = await query6.executeGeoJSON();
-  assertEquals(geojsonEmpty.error, null);
-  assertNotEquals(geojsonEmpty.data, null);
-  // deno-lint-ignore no-explicit-any
-  assertEquals((geojsonEmpty.data as any).features.length, 0);
-
-  await mockFetch(
-    createRequest("https://test.example.com/api/views/test"),
-    new Response(JSON.stringify({}), {
-      status: 200,
-    }),
-  );
-
-  await query.getMetaData();
-
-  await unMockFetch();
+  // The temporary limit=1 must be rolled back to the original limit.
+  assertEquals(query.buildQuery().$limit, "5");
 });

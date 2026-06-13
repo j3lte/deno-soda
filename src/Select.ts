@@ -1,7 +1,7 @@
 import type { FieldImpl } from "./types.ts";
 import { DataType } from "./types.ts";
 
-import { FieldObject, getFieldName, testFieldImpl } from "./Field.ts";
+import { type FieldObject, getFieldName, testFieldImpl } from "./Field.ts";
 import { SelectFunction, SelectImpl } from "./SelectImpl.ts";
 
 /**

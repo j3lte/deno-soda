@@ -1,4 +1,4 @@
-import { FieldObject } from "./Field.ts";
+import type { FieldObject } from "./Field.ts";
 /**
  * The different types of data that can be used in a field
  */

@@ -1,4 +1,4 @@
-import { assertEquals } from "../dev_deps.ts";
+import { assertEquals } from "@std/assert";
 import { Order } from "../src/Order.ts";
 
 Deno.test("(Order.)Order", () => {

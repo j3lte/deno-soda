@@ -3,9 +3,9 @@
 
 import type { FieldImpl } from "./types.ts";
 
-import { replaceParams, SupportTypeElement } from "./utils/param.ts";
-import { FieldObject, getFieldName } from "./Field.ts";
-import { DataType } from "./types.ts";
+import { replaceParams, type SupportTypeElement } from "./utils/param.ts";
+import { type FieldObject, getFieldName } from "./Field.ts";
+import type { DataType } from "./types.ts";
 
 type BasicType = Exclude<SupportTypeElement, null | undefined | boolean>;
 

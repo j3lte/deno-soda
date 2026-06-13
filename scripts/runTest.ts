@@ -1,25 +1,28 @@
-import { emptyDir } from "../dev_deps.ts";
+import { emptyDir } from "@std/fs";
 
 const watcher = Deno.watchFs([
   "./src/",
   "./test/",
 ], { recursive: true });
 
-const runCmd = async (cmd: string[]) => {
-  const p = Deno.run({ cmd, stdout: "piped", stderr: "piped" });
-  const status = await p.status();
-  const output = await p.output();
-  const error = await p.stderrOutput();
-  p.close();
+const runCmd = async (
+  cmd: string[],
+): Promise<{ output: string; error: string; code: number }> => {
+  const command = new Deno.Command(cmd[0], {
+    args: cmd.slice(1),
+    stdout: "piped",
+    stderr: "piped",
+  });
+  const { code, stdout, stderr } = await command.output();
   return {
-    output: new TextDecoder().decode(output),
-    error: new TextDecoder().decode(error),
-    code: status.code,
+    output: new TextDecoder().decode(stdout),
+    error: new TextDecoder().decode(stderr),
+    code,
   };
 };
 
 // Debounce runner
-let timeout: number | undefined;
+let timeout: ReturnType<typeof setTimeout> | undefined;
 
 const runTest = (path: string) => {
   if (timeout) {
@@ -47,6 +50,9 @@ const runTest = (path: string) => {
     await runCmd(["genhtml", "-o", "./.coverage/", "./.coverage/coverageFile.lcov"]);
   }, 100);
 };
+
+console.log("Watching ./src/ and ./test/ for changes... (Ctrl+C to stop)");
+runTest("startup");
 
 for await (const event of watcher) {
   // console.log(">>>>> event", event);

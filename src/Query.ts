@@ -8,7 +8,7 @@ import type {
   RequesOpts,
 } from "./types.ts";
 
-import { Where } from "./Where.ts";
+import type { Where } from "./Where.ts";
 import { toQS } from "./utils/qs.ts";
 import { SelectImpl } from "./SelectImpl.ts";
 import { Order } from "./Order.ts";
