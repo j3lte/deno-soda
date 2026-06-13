@@ -216,13 +216,90 @@ Deno.test("SodaQuery getMetaData", async () => {
   assertEquals(meta.error, null);
 });
 
-Deno.test("SodaQuery single rejects and restores limit", async () => {
+Deno.test("SodaQuery getMetaData throws without a dataset", () => {
+  const query = new SodaQuery("test.example.com");
+  assertThrows(() => query.getMetaData(), Error, "no dataset");
+});
+
+Deno.test("SodaQuery emits zero limit/offset", () => {
+  const query = createSampleQuery().limit(0).offset(0);
+  assertEquals(query.buildQuery().$limit, "0");
+  assertEquals(query.buildQuery().$offset, "0");
+});
+
+Deno.test("SodaQuery single propagates a request rejection", async () => {
   const query = createSampleQuery<{ test: number }>().limit(5);
-  // Empty route table: any request rejects, driving single() into its catch.
+  // Empty route table: any request rejects, so single() rejects too.
   using _fetch = stubFetch({});
 
   await assertRejects(() => query.single());
 
-  // The temporary limit=1 must be rolled back to the original limit.
+  // single() builds its own $limit=1; it never mutates the query's own limit.
   assertEquals(query.buildQuery().$limit, "5");
+});
+
+Deno.test("SodaQuery single applies limit to a stored query", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  query.select("a").prepare("STORED");
+
+  using fetchStub = stubFetch({
+    "https://test.example.com/resource/test.json?$select=a&$limit=1": ok([{ test: 1 }]),
+  });
+
+  const res = await query.single("STORED");
+
+  assertEquals(res.data?.test, 1);
+  const [url] = fetchStub.calls[0].args;
+  assertEquals(url, "https://test.example.com/resource/test.json?$select=a&$limit=1");
+});
+
+Deno.test("SodaQuery single throws on an unknown stored query", () => {
+  const query = createSampleQuery();
+  assertThrows(() => query.single("NOPE"), Error, "No query with ID");
+});
+
+Deno.test("SodaQuery soql() and simple() override the builder", () => {
+  const soqlQuery = createSampleQuery().select("a").where("b = 1").soql("SELECT *");
+  assertEquals(soqlQuery.buildQuery().$query, "SELECT *");
+  assertEquals(soqlQuery.buildQuery().$select, undefined);
+
+  const simpleQuery = createSampleQuery().select("a").simple({ k: "v" });
+  assertEquals(simpleQuery.buildQuery().k, "v");
+  assertEquals(simpleQuery.buildQuery().$select, undefined);
+});
+
+Deno.test("SodaQuery clear resets all clauses", () => {
+  const query = createSampleQuery()
+    .select("a").where("b = 1").groupBy("c").orderBy("d").limit(5).offset(2).search("x");
+  query.clear();
+  assertEquals(query.buildQuery(), {});
+});
+
+Deno.test("SodaQuery forwards the AbortSignal to fetch", async () => {
+  const query = createSampleQuery<{ test: number }>();
+  const controller = new AbortController();
+  using fetchStub = stubFetch({ [BASE]: ok([{ test: 1 }]) });
+
+  await query.execute(undefined, controller.signal);
+
+  const [, init] = fetchStub.calls[0].args;
+  assertEquals(init?.signal, controller.signal);
+});
+
+Deno.test("SodaQuery executeGeoJSON with a stored query", async () => {
+  const query = createSampleQuery();
+  query.select("a").prepare("GEO");
+  using _fetch = stubFetch({
+    "https://test.example.com/resource/test.geojson?$select=a": ok({
+      type: "FeatureCollection",
+      features: [],
+    }),
+  });
+  const res = await query.executeGeoJSON("GEO");
+  assertEquals(res.error, null);
+});
+
+Deno.test("SodaQuery orderBy appends ASC to a directionless string", () => {
+  assertEquals(createSampleQuery().orderBy("a").buildQuery().$order, "a ASC");
+  assertEquals(createSampleQuery().orderBy("a DESC").buildQuery().$order, "a DESC");
 });

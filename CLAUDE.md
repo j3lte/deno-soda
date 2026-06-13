@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The developer handles all `git commit`, `git push`, and tag/release operations himself. Do not commit or push unless explicitly asked. Make code changes and leave them staged/unstaged for him to review.
 
+## Claude files
+
+Put all Claude-related files (specs, plans, scratch notes, and any other generated artifacts) under `.claude/`. That folder is gitignored, so nothing there is committed or published. `CLAUDE.md` itself stays at the repo root (Claude Code loads it from there).
+
+## Static analysis (fallow)
+
+Whenever `fallow` is installed (`command -v fallow`), analyse the code with it after making changes. Use `fallow audit` for the changed files, or `fallow dead-code` / `fallow health` / `fallow dupes` for the whole codebase. Config lives in `.fallowrc.jsonc`; the `.fallow/` cache is gitignored.
+
+Caveat: this is a **library**, so `dead-code` reports the public API (exported `SelectImpl`/`SodaQuery`/`Where` methods, exported enum members) as "unused" — those are false positives consumed by external users. Act on genuinely internal dead code, complexity hotspots, and duplication; ignore the public-API noise.
+
 ## Commands
 
 Deno tasks (defined in `deno.json`):

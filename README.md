@@ -29,7 +29,6 @@ SODA ([Socrata](https://dev.socrata.com/)) Query Client for Deno & NodeJS.
     - [Field](#field)
     - [Order](#order)
     - [Group](#group)
-  - [Development](#development)
   - [License](#license)
 
 ## Features
@@ -151,9 +150,26 @@ Select("column_name").as("alias");
 Select("column_name").count().as("counted");
 Select("column_name").avg();
 Select("column_name").sum();
+Select("column_name").log(); // ln(column_name)
+Select("column_name").unaccent(); // unaccent(column_name)
 ```
 
 See all methods in [`<SelectImpl>`](https://jsr.io/@j3lte/soda/doc/~/SelectImpl) interface.
+
+You can also build a `case(...)` expression with `SelectCase`, which takes
+`[condition, value]` pairs (the condition is a `Where` or a raw SoQL string):
+
+```ts
+import { SelectCase, Where } from "jsr:@j3lte/soda";
+
+query.select(
+  SelectCase(
+    [Where.gt("score", 90), "A"],
+    [Where.gt("score", 80), "B"],
+    ["true", "F"], // default
+  ).as("grade"),
+);
+```
 
 ### Where
 
@@ -184,6 +200,12 @@ Where.and(
     Where.eq("column_name", "value"),
   ),
 );
+
+// Geospatial filters (on Location / Point / Polygon fields)
+Where.withinBox("location", latNW, lonNW, latSE, lonSE);
+Where.withinCircle("location", lat, lon, radiusMeters);
+Where.withinPolygon("location", "MULTIPOLYGON (((...)))"); // WKT, longitude-first
+Where.intersects("the_geom", "POINT (-87.6 41.9)");
 ```
 
 See all methods in [`<Where>`](https://jsr.io/@j3lte/soda/doc/~/Where) interface.
@@ -276,14 +298,6 @@ query.groupBy(
   Field("column_name2", DataType.Number),
 );
 ```
-
-## Development
-
-TODO:
-
-- Add `case` method
-- Missing undocemented functions (investigate [this doc](https://dev.socrata.com/docs/transforms/))
-- Improve docs (JSDoc categories etc)
 
 ## License
 

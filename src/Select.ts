@@ -3,6 +3,8 @@ import { DataType } from "./types.ts";
 
 import { type FieldObject, getFieldName, testFieldImpl } from "./Field.ts";
 import { SelectFunction, SelectImpl } from "./SelectImpl.ts";
+import { Where } from "./Where.ts";
+import { replaceParams, type SupportTypeElement } from "./utils/param.ts";
 
 /**
  * Shortcut for Select("*")
@@ -125,6 +127,29 @@ export function SelectRegrSlope(
     xField,
     yField,
   );
+}
+
+/**
+ * Build a `case(...)` conditional select from `[condition, value]` pairs.
+ *
+ * Conditions are evaluated in order; the first true condition's value is
+ * returned. Add a trailing `[true, default]` pair for a fallback.
+ *
+ * Docs: https://dev.socrata.com/docs/functions/case
+ *
+ * @param cases One or more `[condition, value]` tuples. The condition is a
+ *   {@link Where} or a raw SoQL boolean string; the value is a literal.
+ */
+export function SelectCase(
+  ...cases: Array<[Where | string, SupportTypeElement]>
+): SelectImpl {
+  const parts = cases.flatMap(([condition, value]) => {
+    const cond = condition instanceof Where ? condition.value : condition;
+    // Route values through replaceParams so single quotes are doubled and
+    // Date/null/boolean render as valid SoQL — same escaping as Where values.
+    return [cond, replaceParams("?", [value])];
+  });
+  return SelectImpl.case(parts);
 }
 
 /**

@@ -56,6 +56,11 @@ Deno.test("Utils::params::replaceParams", () => {
   assertMatch(withDate, /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})/);
 
   assertThrows(() => replaceParams("?? in ?", ["test", { test: "test" }]), "Should throw an error");
+
+  // Single quotes are doubled (SoQL escaping); backslash and double-quote are literal.
+  assertEquals(replaceParams("?? = ?", ["a", "O'Brien"]), "`a` = 'O''Brien'");
+  assertEquals(replaceParams("?? = ?", ["a", 'say "hi"']), "`a` = 'say \"hi\"'");
+  assertEquals(replaceParams("?? = ?", ["a", "back\\slash"]), "`a` = 'back\\slash'");
 });
 
 Deno.test("Utils::qs::toQS", () => {

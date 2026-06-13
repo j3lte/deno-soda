@@ -87,6 +87,8 @@ export enum SelectFunction {
   Sum = "sum",
   /** Upper-cased text. */
   UpperCase = "upper",
+  /** Remove accents (diacritics) from text. */
+  Unaccent = "unaccent",
   /** Whether a location falls within a bounding box. */
   WithinBox = "within_box",
   /** Whether a location falls within a circle. */
@@ -107,6 +109,7 @@ export class SelectImpl<T = DataType> {
   private asField: string | null = null;
   private extraField: string | null = null;
   private func: SelectFunction = SelectFunction.Field;
+  private rawExpr: string | null = null;
 
   constructor(field?: string | FieldImpl) {
     if (typeof field === "undefined") {
@@ -120,6 +123,17 @@ export class SelectImpl<T = DataType> {
     } else {
       throw new Error(`Invalid field: ${field}`);
     }
+  }
+
+  /**
+   * Build a raw `case(...)` select from already-rendered argument strings.
+   *
+   * @param args The flattened condition/value argument strings
+   */
+  static case(args: string[]): SelectImpl {
+    const impl = new SelectImpl("case");
+    impl.rawExpr = `case(${args.join(", ")})`;
+    return impl;
   }
 
   /** The name of the underlying field. */
@@ -147,6 +161,9 @@ export class SelectImpl<T = DataType> {
 
   /** Render the select as a SoQL expression string. */
   toString(): string {
+    if (this.rawExpr !== null) {
+      return this.asField ? `${this.rawExpr} as ${this.asField}` : this.rawExpr;
+    }
     const fieldName = this.fieldName;
     const field = this.func === SelectFunction.Field
       ? fieldName
@@ -177,6 +194,22 @@ export class SelectImpl<T = DataType> {
     }
     this.extraField = null;
     this.func = SelectFunction.Abs;
+    return this;
+  }
+
+  /**
+   * Natural logarithm.
+   *
+   * Works on fields of type Number
+   *
+   * Docs: https://dev.socrata.com/docs/functions/ln
+   */
+  log(): SelectImpl<DataType.Number> {
+    if (!testFieldImpl(this.fieldObj, DataType.Number)) {
+      throw new Error("Can only use LN on Number fields");
+    }
+    this.extraField = null;
+    this.func = SelectFunction.Log;
     return this;
   }
 
@@ -496,7 +529,7 @@ export class SelectImpl<T = DataType> {
     if (!testFieldImpl(this.fieldObj, DataType.Point)) {
       throw new Error("Can only use DISTANCE_IN_METERS on Point fields");
     }
-    this.extraField = `'POINT(${lon}, ${lat})'`;
+    this.extraField = `'POINT (${lon} ${lat})'`;
     this.func = SelectFunction.DistanceInMeter;
     return this;
   }
@@ -522,6 +555,22 @@ export class SelectImpl<T = DataType> {
     }
     this.extraField = null;
     this.func = SelectFunction.UpperCase;
+    return this;
+  }
+
+  /**
+   * Remove accents (diacritical marks) from text.
+   *
+   * Works on fields of type Text
+   *
+   * Docs: https://dev.socrata.com/docs/functions/unaccent
+   */
+  unaccent(): SelectImpl<DataType.Text> {
+    if (!testFieldImpl(this.fieldObj, DataType.Text)) {
+      throw new Error("Can only use UNACCENT on Text fields");
+    }
+    this.extraField = null;
+    this.func = SelectFunction.Unaccent;
     return this;
   }
 

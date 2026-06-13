@@ -1,0 +1,16 @@
+{
+  // Deno library. Public entry is mod.ts; tests and scripts are their own roots.
+  "entry": [
+    "mod.ts",
+    "test/**/*.test.ts",
+    "scripts/*.ts",
+  ],
+  // npm/ is generated dnt output; the rest are non-source/local-only.
+  "ignorePatterns": [
+    "npm/**",
+    ".coverage/**",
+    ".claude/**",
+  ],
+  // Not a monorepo — the generated npm/ folder must not be treated as a workspace.
+  "workspaces": null,
+}

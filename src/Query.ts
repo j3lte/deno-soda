@@ -156,10 +156,10 @@ export class SodaQuery<T> {
       if (this.#order.length > 0) {
         query.$order = this.#order.join(", ");
       }
-      if (this.#offset) {
+      if (this.#offset !== null) {
         query.$offset = this.#offset.toString();
       }
-      if (this.#limit) {
+      if (this.#limit !== null) {
         query.$limit = this.#limit.toString();
       }
       if (this.#_q) {
@@ -418,7 +418,8 @@ export class SodaQuery<T> {
   }
 
   /**
-   * Run the query with `$limit=1` and return the first row (or `null`).
+   * Run the query constrained to a single row and return the first row
+   * (or `null`). Works for both the fluent query and a stored `queryID`.
    *
    * @param queryID Optional ID of a query stored via {@link prepare}
    * @param signal Optional abort signal
@@ -427,18 +428,24 @@ export class SodaQuery<T> {
     queryID?: string,
     signal?: AbortSignal,
   ): DataResponse<T & ExtraDataFields> {
-    const currentLimit = this.#limit;
-    this.#limit = 1;
-    return this.execute(queryID, signal).then((res) => {
-      this.#limit = currentLimit;
-      return {
-        ...res,
-        data: res.data?.[0] ?? null,
-      };
-    }).catch((err) => {
-      this.#limit = currentLimit;
-      return Promise.reject(err);
-    });
+    let queryObj: QueryObj;
+    if (queryID) {
+      if (!this.#queryMap.has(queryID)) {
+        throw new Error(`No query with ID ${queryID} found!`);
+      }
+      queryObj = { ...this.#queryMap.get(queryID) as QueryObj };
+    } else {
+      queryObj = this.buildQuery();
+    }
+    queryObj.$limit = 1;
+
+    // `$limit=1` is always present, so the query string is never empty.
+    const url = `https://${this.#domain}${this.getPath()}?${toQS(queryObj)}`;
+
+    return this.requestData<Array<T & ExtraDataFields>>(url, { signal }).then((res) => ({
+      ...res,
+      data: (res.data?.[0] ?? null) as T & ExtraDataFields,
+    }));
   }
 
   /**
@@ -465,6 +472,9 @@ export class SodaQuery<T> {
    * @param signal Optional abort signal
    */
   getMetaData(signal?: AbortSignal): DataResponse<unknown> {
+    if (!this.#datasetId) {
+      throw new Error("no dataset given to work against!");
+    }
     const url = `https://${this.#domain}/api/views/${this.#datasetId}`;
     return this.requestData(url, { signal });
   }

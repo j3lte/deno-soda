@@ -120,13 +120,15 @@ export class Where {
 
   /** Field is one of the given values (`field in (...)`). */
   static in(field: string | FieldImpl, ...values: any[]): Where {
-    const params = values.length > 1 ? values : values[0];
-    return this.expr("?? in ?", getFieldName(field), params);
+    const raw = values.length > 1 ? values : values[0];
+    const params: any[] = Array.isArray(raw) ? raw : [raw];
+    return this.expr("?? in ?", getFieldName(field), params as any);
   }
 
   /** Field is none of the given values (`field not in (...)`). */
   static notIn(field: string | FieldImpl, ...values: any[]): Where {
-    const params: any[] = values.length > 1 ? values : values[0];
+    const raw = values.length > 1 ? values : values[0];
+    const params: any[] = Array.isArray(raw) ? raw : [raw];
     return this.expr("?? not in ?", getFieldName(field), params as any);
   }
 
@@ -224,6 +226,7 @@ export class Where {
     withinCircle: (lat: number, lon: number, radius: number) => Where;
     startsWith: (value: string) => Where;
     intersects: (value: string) => Where;
+    withinPolygon: (value: string) => Where;
   } {
     const fName = getFieldName(name);
     return {
@@ -247,6 +250,7 @@ export class Where {
         this.withinCircle(fName, lat, lon, radius),
       startsWith: (value: string) => this.startsWith(fName, value),
       intersects: (value: string) => this.intersects(fName, value),
+      withinPolygon: (value: string) => this.withinPolygon(fName, value),
     };
   }
 
@@ -352,5 +356,27 @@ export class Where {
     value: string,
   ): Where {
     return this.expr("intersects(??, ?)", getFieldName(field), value);
+  }
+
+  /**
+   * Records whose geometry falls within a polygon.
+   *
+   * @url https://dev.socrata.com/docs/functions/within_polygon
+   *
+   * @param field The field to search
+   * @param value A `MULTIPOLYGON (...)` value in Well-Known Text format
+   *   (coordinates are longitude-first, space-separated)
+   */
+  static withinPolygon(
+    field:
+      | string
+      | FieldObject<DataType.Location>
+      | FieldObject<DataType.Point>
+      | FieldObject<DataType.Line>
+      | FieldObject<DataType.Polygon>
+      | FieldObject<DataType.MultiPolygon>,
+    value: string,
+  ): Where {
+    return this.expr("within_polygon(??, ?)", getFieldName(field), value);
   }
 }
