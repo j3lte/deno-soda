@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # push version bump + create release tag
-      id-token: write # JSR OIDC auth
+      id-token: write # OIDC for JSR + npm trusted publishing
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -30,6 +30,9 @@ jobs:
         with:
           node-version: 22.x
           registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade npm (trusted publishing requires >= 11.5.1)
+        run: npm install -g npm@latest
 
       - name: Set version in deno.json
         run: deno task setVersion ${{ github.event.inputs.version }}
@@ -63,7 +66,7 @@ jobs:
       - name: Build NPM package
         run: deno task npm ${{ github.event.inputs.version }}
 
+      # Trusted publishing (OIDC): no token, uses the job's id-token: write
+      # permission. npm attaches provenance automatically.
       - name: Publish to NPM
         run: cd ./npm && npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_ACCESS_TOKEN }}
