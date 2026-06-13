@@ -34,6 +34,9 @@ jobs:
       - name: Set version in deno.json
         run: deno task setVersion ${{ github.event.inputs.version }}
 
+      - name: Verify package (publish dry-run)
+        run: deno publish --dry-run --allow-dirty
+
       - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
